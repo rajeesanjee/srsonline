@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { products } from "@/data/products";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import Hero from "@/components/home/Hero";
