@@ -37,8 +37,12 @@ export default function Navbar() {
 
         {/* Icons */}
         <div className="flex items-center gap-5">
-          <User className="cursor-pointer hover:text-red-700" />
-          <ShoppingCart className="cursor-pointer hover:text-red-700" />
+          <Link href="/admin/login" aria-label="Admin login">
+            <User className="cursor-pointer hover:text-red-700" />
+          </Link>
+          <Link href="/cart" aria-label="Shopping cart">
+            <ShoppingCart className="cursor-pointer hover:text-red-700" />
+          </Link>
         </div>
       </div>
     </header>

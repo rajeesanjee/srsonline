@@ -19,13 +19,13 @@ export default function CartPage() {
       const savedCart = localStorage.getItem("cart");
 
       if (savedCart) {
-        setCart(JSON.parse(savedCart));
+        queueMicrotask(() => setCart(JSON.parse(savedCart)));
       }
     } catch (error) {
       console.error("Unable to load cart:", error);
       localStorage.removeItem("cart");
     } finally {
-      setLoaded(true);
+      queueMicrotask(() => setLoaded(true));
     }
   }, []);
 

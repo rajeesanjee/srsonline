@@ -18,7 +18,7 @@ export default function CheckoutPage() {
     const savedCart = localStorage.getItem("cart");
 
     if (savedCart) {
-      setCart(JSON.parse(savedCart));
+      queueMicrotask(() => setCart(JSON.parse(savedCart)));
     }
   }, []);
 
