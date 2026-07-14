@@ -52,7 +52,11 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  Product: 'Product'
+  Customer: 'Customer',
+  Supplier: 'Supplier',
+  Product: 'Product',
+  Sale: 'Sale',
+  SaleItem: 'SaleItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -84,6 +88,45 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const CustomerScalarFieldEnum = {
+  id: 'id',
+  customerCode: 'customerCode',
+  name: 'name',
+  nameTamil: 'nameTamil',
+  phone: 'phone',
+  address: 'address',
+  area: 'area',
+  openingBalance: 'openingBalance',
+  balance: 'balance',
+  creditLimit: 'creditLimit',
+  rewardPoints: 'rewardPoints',
+  lastVisitDate: 'lastVisitDate',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const SupplierScalarFieldEnum = {
+  id: 'id',
+  supplierCode: 'supplierCode',
+  name: 'name',
+  phone: 'phone',
+  address: 'address',
+  contactDetails: 'contactDetails',
+  gstin: 'gstin',
+  openingBalance: 'openingBalance',
+  balance: 'balance',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   productCode: 'productCode',
@@ -112,6 +155,61 @@ export const ProductScalarFieldEnum = {
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const SaleScalarFieldEnum = {
+  id: 'id',
+  billNumber: 'billNumber',
+  billDate: 'billDate',
+  customerId: 'customerId',
+  customerCode: 'customerCode',
+  customerName: 'customerName',
+  previousBalance: 'previousBalance',
+  receivedAmount: 'receivedAmount',
+  closingBalance: 'closingBalance',
+  priceMode: 'priceMode',
+  itemCount: 'itemCount',
+  subtotal: 'subtotal',
+  gstTotal: 'gstTotal',
+  discount: 'discount',
+  roundOff: 'roundOff',
+  total: 'total',
+  paymentType: 'paymentType',
+  cashAmount: 'cashAmount',
+  cardAmount: 'cardAmount',
+  gpayAmount: 'gpayAmount',
+  creditAmount: 'creditAmount',
+  otherAmount: 'otherAmount',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SaleScalarFieldEnum = (typeof SaleScalarFieldEnum)[keyof typeof SaleScalarFieldEnum]
+
+
+export const SaleItemScalarFieldEnum = {
+  id: 'id',
+  saleId: 'saleId',
+  productId: 'productId',
+  productCode: 'productCode',
+  barcode: 'barcode',
+  productName: 'productName',
+  productNameTamil: 'productNameTamil',
+  counter: 'counter',
+  quantity: 'quantity',
+  mrp: 'mrp',
+  rate: 'rate',
+  gstRate: 'gstRate',
+  gstAmount: 'gstAmount',
+  discountPercent: 'discountPercent',
+  discountAmount: 'discountAmount',
+  amount: 'amount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SaleItemScalarFieldEnum = (typeof SaleItemScalarFieldEnum)[keyof typeof SaleItemScalarFieldEnum]
 
 
 export const SortOrder = {

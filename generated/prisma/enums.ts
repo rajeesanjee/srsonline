@@ -16,3 +16,34 @@ export const Role = {
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const SalePriceMode = {
+  WHOLESALE: 'WHOLESALE',
+  RETAIL: 'RETAIL',
+  CARD: 'CARD'
+} as const
+
+export type SalePriceMode = (typeof SalePriceMode)[keyof typeof SalePriceMode]
+
+
+export const SaleStatus = {
+  OPEN: 'OPEN',
+  HOLD: 'HOLD',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type SaleStatus = (typeof SaleStatus)[keyof typeof SaleStatus]
+
+
+export const PaymentType = {
+  CASH: 'CASH',
+  CARD: 'CARD',
+  GPAY: 'GPAY',
+  CREDIT: 'CREDIT',
+  MIXED: 'MIXED',
+  OTHER: 'OTHER'
+} as const
+
+export type PaymentType = (typeof PaymentType)[keyof typeof PaymentType]

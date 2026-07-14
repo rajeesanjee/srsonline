@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   BarChart3,
   Boxes,
+  Calculator,
   Home,
   Package,
   ShoppingCart,
@@ -14,6 +15,11 @@ const menuItems = [
     label: "Dashboard",
     href: "/admin/dashboard",
     icon: Home,
+  },
+  {
+    label: "Billing",
+    href: "/admin/billing",
+    icon: Calculator,
   },
   {
     label: "Products",
@@ -71,6 +77,7 @@ export default function AdminSidebar() {
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-red-100 transition hover:bg-red-800 hover:text-white"
             >
               <Icon className="h-5 w-5" />
+
               <span className="font-semibold">
                 {item.label}
               </span>

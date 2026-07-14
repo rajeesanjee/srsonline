@@ -1,0 +1,2571 @@
+========== BILLING PAGE START ==========
+"use client";
+
+import {
+  KeyboardEvent as ReactKeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+type PriceMode = "WHOLESALE" | "RETAIL" | "CARD";
+
+type ProductResult = {
+  id: string;
+  productCode: string | null;
+  barcode: string | null;
+  name: string;
+  nameTamil: string | null;
+  unit: string;
+  mrp: string | number;
+  wholesalePrice: string | number | null;
+  retailPrice: string | number;
+  cardPrice: string | number | null;
+  gstRate: string | number;
+  stock: string | number;
+  allowDecimal: boolean;
+  counter: number;
+};
+
+type CustomerResult = {
+  id: string;
+  customerCode: string;
+  name: string;
+  phone: string | null;
+  balance: string | number;
+};
+
+type BillItem = {
+  lineId: string;
+  productId: string;
+  productCode: string;
+  barcode: string;
+  productName: string;
+  productNameTamil: string;
+  unit: string;
+  mrp: number;
+  rate: number;
+  quantity: number;
+  amount: number;
+  gstRate: number;
+  allowDecimal: boolean;
+  counter: number;
+  wholesalePrice: number;
+  retailPrice: number;
+  cardPrice: number;
+};
+
+type SavedSaleResult = {
+  success: boolean;
+  sale: {
+    id: string;
+    billNumber: string;
+    total: number;
+    previousBalance: number;
+    receivedAmount: number;
+    closingBalance: number;
+    itemCount: number;
+  };
+};
+
+const PRICE_MODES: PriceMode[] = [
+  "WHOLESALE",
+  "RETAIL",
+  "CARD",
+];
+
+function createLineId() {
+  return `${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}`;
+}
+
+export default function BillingPage() {
+  const productInputRef =
+    useRef<HTMLInputElement>(null);
+
+  const quantityInputRef =
+    useRef<HTMLInputElement>(null);
+
+  const customerInputRef =
+    useRef<HTMLInputElement>(null);
+
+  const productResultRefs = useRef<
+    Array<HTMLButtonElement | null>
+  >([]);
+
+  const customerResultRefs = useRef<
+    Array<HTMLButtonElement | null>
+  >([]);
+
+  const productTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
+  const customerTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
+  const savingRef = useRef(false);
+
+  const [billNumber, setBillNumber] =
+    useState("...");
+
+  const [priceMode, setPriceMode] =
+    useState<PriceMode>("WHOLESALE");
+
+  const [customerId, setCustomerId] =
+    useState<string | null>(null);
+
+  const [customerCode, setCustomerCode] =
+    useState("F1");
+
+  const [customerName, setCustomerName] =
+    useState("CASH");
+
+  const [customerPhone, setCustomerPhone] =
+    useState("");
+
+  const [customerQuery, setCustomerQuery] =
+    useState("");
+
+  const [customerResults, setCustomerResults] =
+    useState<CustomerResult[]>([]);
+
+  const [
+    activeCustomerIndex,
+    setActiveCustomerIndex,
+  ] = useState(-1);
+
+  const [previousBalance, setPreviousBalance] =
+    useState(0);
+
+  const [receivedAmount, setReceivedAmount] =
+    useState("0");
+
+  const [productQuery, setProductQuery] =
+    useState("");
+
+  const [productResults, setProductResults] =
+    useState<ProductResult[]>([]);
+
+  const [
+    activeProductIndex,
+    setActiveProductIndex,
+  ] = useState(-1);
+
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductResult | null>(null);
+
+  const [quantity, setQuantity] = useState("1");
+
+  const [items, setItems] = useState<BillItem[]>(
+    []
+  );
+
+  const [searchingProduct, setSearchingProduct] =
+    useState(false);
+
+  const [saving, setSaving] = useState(false);
+
+  const [error, setError] = useState("");
+
+  const [successMessage, setSuccessMessage] =
+    useState("");
+
+  const billDate = useMemo(() => {
+    return new Date().toISOString().slice(0, 10);
+  }, []);
+
+  const getProductPrice = useCallback(
+    (
+      product: ProductResult,
+      mode: PriceMode
+    ) => {
+      if (mode === "WHOLESALE") {
+        return Number(
+          product.wholesalePrice ??
+            product.retailPrice
+        );
+      }
+
+      if (mode === "CARD") {
+        return Number(
+          product.cardPrice ??
+            product.retailPrice
+        );
+      }
+
+      return Number(product.retailPrice);
+    },
+    []
+  );
+
+  const getItemPrice = useCallback(
+    (item: BillItem, mode: PriceMode) => {
+      if (mode === "WHOLESALE") {
+        return item.wholesalePrice;
+      }
+
+      if (mode === "CARD") {
+        return item.cardPrice;
+      }
+
+      return item.retailPrice;
+    },
+    []
+  );
+
+  const loadNextBillNumber = useCallback(
+    async () => {
+      try {
+        const response = await fetch(
+          "/api/billing/next-bill",
+          {
+            cache: "no-store",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ||
+              "Failed to load bill number"
+          );
+        }
+
+        setBillNumber(data.billNumber);
+      } catch (err) {
+        setBillNumber("ERROR");
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load bill number"
+        );
+      }
+    },
+    []
+  );
+
+  const cyclePriceMode = useCallback(() => {
+    if (savingRef.current) {
+      return;
+    }
+
+    setPriceMode((currentMode) => {
+      const currentIndex =
+        PRICE_MODES.indexOf(currentMode);
+
+      const nextMode =
+        PRICE_MODES[
+          (currentIndex + 1) %
+            PRICE_MODES.length
+        ];
+
+      setItems((currentItems) =>
+        currentItems.map((item) => {
+          const rate = getItemPrice(
+            item,
+            nextMode
+          );
+
+          return {
+            ...item,
+            rate,
+            amount: Number(
+              (
+                rate * item.quantity
+              ).toFixed(2)
+            ),
+          };
+        })
+      );
+
+      return nextMode;
+    });
+  }, [getItemPrice]);
+
+  const searchProducts = useCallback(
+    async (query: string) => {
+      const cleanQuery = query.trim();
+
+      if (!cleanQuery) {
+        setProductResults([]);
+        setActiveProductIndex(-1);
+        setSelectedProduct(null);
+        return;
+      }
+
+      setSearchingProduct(true);
+      setError("");
+
+      try {
+        const response = await fetch(
+          `/api/billing/products?q=${encodeURIComponent(
+            cleanQuery
+          )}`,
+          {
+            cache: "no-store",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ||
+              "Product search failed"
+          );
+        }
+
+        const results = data as ProductResult[];
+
+        setProductResults(results);
+
+        if (results.length > 0) {
+          setActiveProductIndex(0);
+        } else {
+          setActiveProductIndex(-1);
+        }
+
+        if (results.length === 1) {
+          setSelectedProduct(results[0]);
+        } else {
+          setSelectedProduct(null);
+        }
+      } catch (err) {
+        setProductResults([]);
+        setActiveProductIndex(-1);
+        setSelectedProduct(null);
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Product search failed"
+        );
+      } finally {
+        setSearchingProduct(false);
+      }
+    },
+    []
+  );
+
+  const searchCustomers = useCallback(
+    async (query: string) => {
+      const cleanQuery = query.trim();
+
+      if (!cleanQuery) {
+        setCustomerResults([]);
+        setActiveCustomerIndex(-1);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `/api/billing/customers?q=${encodeURIComponent(
+            cleanQuery
+          )}`,
+          {
+            cache: "no-store",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ||
+              "Customer search failed"
+          );
+        }
+
+        const results = data as CustomerResult[];
+
+        setCustomerResults(results);
+
+        if (results.length > 0) {
+          setActiveCustomerIndex(0);
+        } else {
+          setActiveCustomerIndex(-1);
+        }
+      } catch (err) {
+        setCustomerResults([]);
+        setActiveCustomerIndex(-1);
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Customer search failed"
+        );
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (activeProductIndex < 0) {
+      return;
+    }
+
+    productResultRefs.current[
+      activeProductIndex
+    ]?.scrollIntoView({
+      block: "nearest",
+    });
+  }, [activeProductIndex]);
+
+  useEffect(() => {
+    if (activeCustomerIndex < 0) {
+      return;
+    }
+
+    customerResultRefs.current[
+      activeCustomerIndex
+    ]?.scrollIntoView({
+      block: "nearest",
+    });
+  }, [activeCustomerIndex]);
+
+  const resetBill = useCallback(
+    async (showSuccess = false) => {
+      setItems([]);
+
+      setProductQuery("");
+      setProductResults([]);
+      setActiveProductIndex(-1);
+      setSelectedProduct(null);
+      setQuantity("1");
+
+      setCustomerId(null);
+      setCustomerCode("F1");
+      setCustomerName("CASH");
+      setCustomerPhone("");
+      setCustomerQuery("");
+      setCustomerResults([]);
+      setActiveCustomerIndex(-1);
+
+      setPreviousBalance(0);
+      setReceivedAmount("0");
+
+      setPriceMode("WHOLESALE");
+      setError("");
+
+      if (!showSuccess) {
+        setSuccessMessage("");
+      }
+
+      await loadNextBillNumber();
+
+      window.setTimeout(() => {
+        productInputRef.current?.focus();
+      }, 0);
+    },
+    [loadNextBillNumber]
+  );
+
+  useEffect(() => {
+    loadNextBillNumber();
+
+    window.setTimeout(() => {
+      productInputRef.current?.focus();
+    }, 100);
+  }, [loadNextBillNumber]);
+
+  function handleProductQueryChange(
+    value: string
+  ) {
+    setProductQuery(value);
+    setSelectedProduct(null);
+    setActiveProductIndex(-1);
+    setError("");
+    setSuccessMessage("");
+
+    if (productTimerRef.current) {
+      clearTimeout(productTimerRef.current);
+    }
+
+    if (!value.trim()) {
+      setProductResults([]);
+      return;
+    }
+
+    productTimerRef.current = setTimeout(() => {
+      void searchProducts(value);
+    }, 180);
+  }
+
+  function handleCustomerQueryChange(
+    value: string
+  ) {
+    setCustomerQuery(value);
+    setActiveCustomerIndex(-1);
+    setError("");
+    setSuccessMessage("");
+
+    if (customerTimerRef.current) {
+      clearTimeout(customerTimerRef.current);
+    }
+
+    if (!value.trim()) {
+      setCustomerResults([]);
+      return;
+    }
+
+    customerTimerRef.current = setTimeout(() => {
+      void searchCustomers(value);
+    }, 180);
+  }
+
+  function chooseCustomer(
+    customer: CustomerResult
+  ) {
+    setCustomerId(customer.id);
+    setCustomerCode(customer.customerCode);
+    setCustomerName(customer.name);
+    setCustomerPhone(customer.phone || "");
+
+    setPreviousBalance(
+      Number(customer.balance)
+    );
+
+    setCustomerQuery(customer.name);
+    setCustomerResults([]);
+    setActiveCustomerIndex(-1);
+    setError("");
+    setSuccessMessage("");
+
+    window.setTimeout(() => {
+      productInputRef.current?.focus();
+    }, 0);
+  }
+
+  function chooseProduct(
+    product: ProductResult
+  ) {
+    setSelectedProduct(product);
+
+    setProductResults([]);
+    setActiveProductIndex(-1);
+
+    setProductQuery(
+      product.productCode ||
+        product.barcode ||
+        product.name
+    );
+
+    setQuantity("1");
+    setError("");
+    setSuccessMessage("");
+
+    window.setTimeout(() => {
+      quantityInputRef.current?.focus();
+      quantityInputRef.current?.select();
+    }, 0);
+  }
+
+  async function handleProductKeyDown(
+    event: ReactKeyboardEvent<HTMLInputElement>
+  ) {
+    if (event.key === "ArrowDown") {
+      if (productResults.length === 0) {
+        return;
+      }
+
+      event.preventDefault();
+
+      setActiveProductIndex((current) => {
+        if (current < 0) {
+          return 0;
+        }
+
+        return Math.min(
+          current + 1,
+          productResults.length - 1
+        );
+      });
+
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      if (productResults.length === 0) {
+        return;
+      }
+
+      event.preventDefault();
+
+      setActiveProductIndex((current) => {
+        if (current <= 0) {
+          return 0;
+        }
+
+        return current - 1;
+      });
+
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+
+      setProductResults([]);
+      setActiveProductIndex(-1);
+
+      return;
+    }
+
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (
+      productResults.length > 0 &&
+      activeProductIndex >= 0
+    ) {
+      chooseProduct(
+        productResults[activeProductIndex]
+      );
+
+      return;
+    }
+
+    if (selectedProduct) {
+      quantityInputRef.current?.focus();
+      quantityInputRef.current?.select();
+
+      return;
+    }
+
+    const query = productQuery.trim();
+
+    if (!query) {
+      return;
+    }
+
+    await searchProducts(query);
+  }
+
+  function handleCustomerKeyDown(
+    event: ReactKeyboardEvent<HTMLInputElement>
+  ) {
+    if (event.key === "ArrowDown") {
+      if (customerResults.length === 0) {
+        return;
+      }
+
+      event.preventDefault();
+
+      setActiveCustomerIndex((current) => {
+        if (current < 0) {
+          return 0;
+        }
+
+        return Math.min(
+          current + 1,
+          customerResults.length - 1
+        );
+      });
+
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      if (customerResults.length === 0) {
+        return;
+      }
+
+      event.preventDefault();
+
+      setActiveCustomerIndex((current) => {
+        if (current <= 0) {
+          return 0;
+        }
+
+        return current - 1;
+      });
+
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+
+      setCustomerResults([]);
+      setActiveCustomerIndex(-1);
+
+      return;
+    }
+
+    if (
+      event.key === "Enter" &&
+      customerResults.length > 0 &&
+      activeCustomerIndex >= 0
+    ) {
+      event.preventDefault();
+
+      chooseCustomer(
+        customerResults[activeCustomerIndex]
+      );
+    }
+  }
+
+  function addSelectedProduct() {
+    if (!selectedProduct) {
+      setError("Select a product first");
+      productInputRef.current?.focus();
+      return;
+    }
+
+    const parsedQuantity = Number(quantity);
+
+    if (
+      !Number.isFinite(parsedQuantity) ||
+      parsedQuantity <= 0
+    ) {
+      setError("Enter a valid quantity");
+      return;
+    }
+
+    if (
+      !selectedProduct.allowDecimal &&
+      !Number.isInteger(parsedQuantity)
+    ) {
+      setError(
+        "This product only allows whole quantities"
+      );
+
+      return;
+    }
+
+    const availableStock = Number(
+      selectedProduct.stock
+    );
+
+    const alreadyAddedQuantity = items
+      .filter(
+        (item) =>
+          item.productId === selectedProduct.id
+      )
+      .reduce(
+        (total, item) =>
+          total + item.quantity,
+        0
+      );
+
+    const totalRequestedQuantity =
+      alreadyAddedQuantity + parsedQuantity;
+
+    if (
+      totalRequestedQuantity > availableStock
+    ) {
+      setError(
+        `Only ${availableStock} stock available. Already added ${formatQuantity(
+          alreadyAddedQuantity
+        )}.`
+      );
+
+      return;
+    }
+
+    const rate = getProductPrice(
+      selectedProduct,
+      priceMode
+    );
+
+    const wholesalePrice = Number(
+      selectedProduct.wholesalePrice ??
+        selectedProduct.retailPrice
+    );
+
+    const retailPrice = Number(
+      selectedProduct.retailPrice
+    );
+
+    const cardPrice = Number(
+      selectedProduct.cardPrice ??
+        selectedProduct.retailPrice
+    );
+
+    const newItem: BillItem = {
+      lineId: createLineId(),
+
+      productId: selectedProduct.id,
+
+      productCode:
+        selectedProduct.productCode || "",
+
+      barcode:
+        selectedProduct.barcode || "",
+
+      productName: selectedProduct.name,
+
+      productNameTamil:
+        selectedProduct.nameTamil || "",
+
+      unit: selectedProduct.unit,
+
+      mrp: Number(selectedProduct.mrp),
+
+      rate,
+
+      quantity: parsedQuantity,
+
+      amount: Number(
+        (rate * parsedQuantity).toFixed(2)
+      ),
+
+      gstRate: Number(
+        selectedProduct.gstRate
+      ),
+
+      allowDecimal:
+        selectedProduct.allowDecimal,
+
+      counter: selectedProduct.counter,
+
+      wholesalePrice,
+
+      retailPrice,
+
+      cardPrice,
+    };
+
+    setItems((currentItems) => [
+      ...currentItems,
+      newItem,
+    ]);
+
+    setProductQuery("");
+    setProductResults([]);
+    setActiveProductIndex(-1);
+    setSelectedProduct(null);
+    setQuantity("1");
+    setError("");
+    setSuccessMessage("");
+
+    window.setTimeout(() => {
+      productInputRef.current?.focus();
+    }, 0);
+  }
+
+  function handleQuantityKeyDown(
+    event: ReactKeyboardEvent<HTMLInputElement>
+  ) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addSelectedProduct();
+    }
+  }
+
+  function removeItem(lineId: string) {
+    setItems((currentItems) =>
+      currentItems.filter(
+        (item) => item.lineId !== lineId
+      )
+    );
+
+    setSuccessMessage("");
+  }
+
+  const totals = useMemo(() => {
+    const itemCount = items.reduce(
+      (total, item) =>
+        total + item.quantity,
+      0
+    );
+
+    const subtotal = items.reduce(
+      (total, item) =>
+        total + item.amount,
+      0
+    );
+
+    const gstTotal = items.reduce(
+      (total, item) => {
+        if (item.gstRate <= 0) {
+          return total;
+        }
+
+        const gstAmount =
+          item.amount -
+          item.amount /
+            (1 + item.gstRate / 100);
+
+        return total + gstAmount;
+      },
+      0
+    );
+
+    return {
+      itemCount,
+      subtotal,
+      gstTotal,
+      total: subtotal,
+    };
+  }, [items]);
+
+  const received = Number(receivedAmount || 0);
+
+  const closingBalance =
+    customerId === null
+      ? 0
+      : previousBalance +
+        totals.total -
+        (Number.isFinite(received)
+          ? received
+          : 0);
+
+  const selectedRate = selectedProduct
+    ? getProductPrice(
+        selectedProduct,
+        priceMode
+      )
+    : 0;
+
+  const selectedAmount =
+    selectedRate * Number(quantity || 0);
+
+  const saveBill = useCallback(async () => {
+    if (savingRef.current) {
+      return;
+    }
+
+    if (items.length === 0) {
+      setError(
+        "Add at least one product before saving"
+      );
+
+      productInputRef.current?.focus();
+      return;
+    }
+
+    if (
+      !billNumber ||
+      billNumber === "..." ||
+      billNumber === "ERROR"
+    ) {
+      setError(
+        "A valid bill number is required"
+      );
+
+      return;
+    }
+
+    const receivedValue = Number(
+      receivedAmount || 0
+    );
+
+    if (
+      !Number.isFinite(receivedValue) ||
+      receivedValue < 0
+    ) {
+      setError(
+        "Enter a valid received amount"
+      );
+
+      return;
+    }
+
+    savingRef.current = true;
+    setSaving(true);
+    setError("");
+    setSuccessMessage("");
+
+    try {
+      const response = await fetch(
+        "/api/billing/sales",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            billNumber,
+            customerId,
+            priceMode,
+            receivedAmount: receivedValue,
+
+            items: items.map((item) => ({
+              productId: item.productId,
+              productCode: item.productCode,
+              barcode: item.barcode,
+              quantity: item.quantity,
+            })),
+          }),
+        }
+      );
+
+      const data =
+        (await response.json()) as
+          | SavedSaleResult
+          | {
+              error?: string;
+            };
+
+      if (!response.ok) {
+        throw new Error(
+          "error" in data && data.error
+            ? data.error
+            : "Failed to save bill"
+        );
+      }
+
+      if (!("sale" in data)) {
+        throw new Error(
+          "Invalid save bill response"
+        );
+      }
+
+      const savedBillNumber =
+        data.sale.billNumber;
+
+      const savedTotal = data.sale.total;
+
+      setSuccessMessage(
+        `Bill ${savedBillNumber} saved successfully · ₹${savedTotal.toFixed(
+          2
+        )}`
+      );
+
+      await resetBill(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to save bill"
+      );
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
+  }, [
+    billNumber,
+    customerId,
+    items,
+    priceMode,
+    receivedAmount,
+    resetBill,
+  ]);
+
+  useEffect(() => {
+    function handleKeyboard(event: KeyboardEvent) {
+      if (event.key === "F5") {
+        event.preventDefault();
+        cyclePriceMode();
+
+        return;
+      }
+
+      if (event.key === "F1") {
+        event.preventDefault();
+
+        productInputRef.current?.focus();
+        productInputRef.current?.select();
+
+        return;
+      }
+
+      if (event.key === "F6") {
+        event.preventDefault();
+
+        setCustomerQuery("");
+
+        window.setTimeout(() => {
+          customerInputRef.current?.focus();
+          customerInputRef.current?.select();
+        }, 0);
+
+        return;
+      }
+
+      if (
+        event.ctrlKey &&
+        event.key.toLowerCase() === "n"
+      ) {
+        event.preventDefault();
+
+        void resetBill();
+
+        return;
+      }
+
+      if (
+        event.ctrlKey &&
+        event.key.toLowerCase() === "s"
+      ) {
+        event.preventDefault();
+
+        void saveBill();
+      }
+    }
+
+    window.addEventListener(
+      "keydown",
+      handleKeyboard
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleKeyboard
+      );
+    };
+  }, [
+    cyclePriceMode,
+    resetBill,
+    saveBill,
+  ]);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex h-screen w-screen flex-col overflow-hidden bg-white text-stone-900">
+      <header className="grid h-[58px] shrink-0 grid-cols-[230px_1fr_330px] items-center border-b border-stone-400 bg-stone-50 px-3">
+        <div className="flex items-end gap-4">
+          <div className="text-3xl font-black">
+            ₹{totals.total.toFixed(2)}
+          </div>
+
+          <div className="pb-1 text-lg font-black text-blue-800">
+            {formatQuantity(
+              totals.itemCount
+            )}{" "}
+            ITEMS
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="text-xl font-black">
+            RAJALAKSHMI STORES
+          </div>
+
+          <div className="text-xs font-bold text-red-700">
+            COUNTER SALES · {priceMode}
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-1">
+          <TopButton
+            onClick={() => {
+              void resetBill();
+            }}
+            disabled={saving}
+          >
+            New
+          </TopButton>
+
+          <TopButton
+            onClick={() => {
+              void saveBill();
+            }}
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save"}
+          </TopButton>
+
+          <TopButton disabled>
+            Print
+          </TopButton>
+
+          <TopButton
+            onClick={() => {
+              window.location.href =
+                "/admin/products";
+            }}
+            disabled={saving}
+          >
+            Close
+          </TopButton>
+        </div>
+      </header>
+
+      {error && (
+        <div className="shrink-0 border-b border-red-300 bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
+          {error}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="shrink-0 border-b border-emerald-300 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+          {successMessage}
+        </div>
+      )}
+
+      <section className="grid shrink-0 grid-cols-[285px_minmax(420px,1fr)_300px] gap-4 border-b border-stone-400 bg-stone-50 px-3 py-2">
+        <div className="grid grid-cols-[90px_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5">
+          <BlueLabel>Bill No</BlueLabel>
+
+          <CompactInput
+            value={billNumber}
+            readOnly
+          />
+
+          <BlueLabel>Bill Date</BlueLabel>
+
+          <CompactInput
+            value={billDate}
+            readOnly
+          />
+
+          <BlueLabel>Price</BlueLabel>
+
+          <div className="flex min-w-0">
+            <input
+              value={priceMode}
+              readOnly
+              className="h-7 min-w-0 flex-1 border border-stone-400 bg-yellow-50 px-2 text-xs font-black text-red-700"
+            />
+
+            <button
+              type="button"
+              onClick={cyclePriceMode}
+              disabled={saving}
+              className="h-7 shrink-0 bg-red-800 px-3 text-xs font-black text-white disabled:opacity-50"
+            >
+              F5
+            </button>
+          </div>
+        </div>
+
+        <div className="grid min-w-0 grid-cols-[110px_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5">
+          <BlueLabel>Customer</BlueLabel>
+
+          <div className="relative min-w-0">
+            <input
+              ref={customerInputRef}
+              value={customerQuery || customerName}
+              onChange={(event) =>
+                handleCustomerQueryChange(
+                  event.target.value
+                )
+              }
+              onKeyDown={handleCustomerKeyDown}
+              disabled={saving}
+              autoComplete="off"
+              className="h-7 w-full min-w-0 border border-stone-400 px-2 text-xs disabled:bg-stone-100"
+            />
+
+            {customerResults.length > 0 && (
+              <div className="absolute left-0 top-full z-[300] mt-1 max-h-52 w-full min-w-[500px] overflow-y-auto border bg-white shadow-xl">
+                {customerResults.map(
+                  (customer, index) => (
+                    <button
+                      key={customer.id}
+                      ref={(element) => {
+                        customerResultRefs.current[
+                          index
+                        ] = element;
+                      }}
+                      type="button"
+                      onMouseDown={(event) => {
+                        event.preventDefault();
+
+                        chooseCustomer(customer);
+                      }}
+                      className={`grid w-full grid-cols-[90px_minmax(0,1fr)_100px] border-b px-2 py-1.5 text-left text-xs ${
+                        index === activeCustomerIndex
+                          ? "bg-blue-800 text-white"
+                          : "bg-white hover:bg-yellow-50"
+                      }`}
+                    >
+                      <strong>
+                        {customer.customerCode}
+                      </strong>
+
+                      <span>
+                        {customer.name}
+                      </span>
+
+                      <span className="text-right">
+                        Bal ₹
+                        {Number(
+                          customer.balance
+                        ).toFixed(2)}
+                      </span>
+                    </button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+
+          <BlueLabel>Customer Code</BlueLabel>
+
+          <CompactInput
+            value={customerCode}
+            readOnly
+          />
+
+          <div className="flex items-center gap-2">
+            <BlueLabel>Phone</BlueLabel>
+
+            <span className="rounded bg-red-800 px-1.5 py-0.5 text-[10px] font-black text-white">
+              F6
+            </span>
+          </div>
+
+          <CompactInput
+            value={customerPhone}
+            readOnly
+          />
+        </div>
+
+        <div className="grid grid-cols-[125px_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5">
+          <BlueLabel>Prev Balance</BlueLabel>
+
+          <MoneyDisplay
+            value={previousBalance}
+          />
+
+          <BlueLabel>Received</BlueLabel>
+
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={receivedAmount}
+            onChange={(event) =>
+              setReceivedAmount(
+                event.target.value
+              )
+            }
+            disabled={saving}
+            className="h-7 w-full min-w-0 border border-stone-400 px-2 text-right text-xs font-bold disabled:bg-stone-100"
+          />
+
+          <BlueLabel>Closing Bal</BlueLabel>
+
+          <MoneyDisplay
+            value={closingBalance}
+            strong
+          />
+        </div>
+      </section>
+
+      <section className="relative shrink-0 border-b border-stone-400 bg-white px-2 py-1">
+        <div className="text-sm font-black text-red-700">
+          Product
+        </div>
+
+        <div className="grid grid-cols-[155px_minmax(240px,1fr)_90px_110px_90px_115px] gap-1">
+          <ColumnLabel>
+            Code / Barcode
+          </ColumnLabel>
+
+          <ColumnLabel>
+            Product Name
+          </ColumnLabel>
+
+          <ColumnLabel>MRP</ColumnLabel>
+
+          <ColumnLabel>
+            {priceMode} Price
+          </ColumnLabel>
+
+          <ColumnLabel>Qty</ColumnLabel>
+
+          <ColumnLabel>Amount</ColumnLabel>
+
+          <div className="relative">
+            <input
+              ref={productInputRef}
+              value={productQuery}
+              onChange={(event) =>
+                handleProductQueryChange(
+                  event.target.value
+                )
+              }
+              onKeyDown={handleProductKeyDown}
+              disabled={saving}
+              autoComplete="off"
+              className="h-7 w-full border-2 border-blue-700 px-1 text-sm font-bold outline-none focus:border-red-700 disabled:bg-stone-100"
+            />
+
+            {productResults.length > 0 && (
+              <div className="absolute left-0 top-full z-[250] mt-1 max-h-60 w-[650px] overflow-y-auto border bg-white shadow-xl">
+                {productResults.map(
+                  (product, index) => (
+                    <button
+                      key={product.id}
+                      ref={(element) => {
+                        productResultRefs.current[
+                          index
+                        ] = element;
+                      }}
+                      type="button"
+                      onMouseDown={(event) => {
+                        event.preventDefault();
+
+                        chooseProduct(product);
+                      }}
+                      className={`grid w-full grid-cols-[80px_minmax(0,1fr)_90px] border-b px-2 py-1.5 text-left text-xs ${
+                        index ===
+                        activeProductIndex
+                          ? "bg-blue-800 text-white"
+                          : "bg-white hover:bg-yellow-50"
+                      }`}
+                    >
+                      <strong>
+                        {product.productCode ||
+                          "-"}
+                      </strong>
+
+                      <span>
+                        <strong>
+                          {product.name}
+                        </strong>
+
+                        {product.nameTamil && (
+                          <span
+                            lang="ta"
+                            className={
+                              index ===
+                              activeProductIndex
+                                ? "ml-2 text-yellow-200"
+                                : "ml-2 text-red-700"
+                            }
+                          >
+                            {
+                              product.nameTamil
+                            }
+                          </span>
+                        )}
+                      </span>
+
+                      <span className="text-right">
+                        Stock{" "}
+                        {formatQuantity(
+                          Number(product.stock)
+                        )}
+                      </span>
+                    </button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+
+          <input
+            value={
+              searchingProduct
+                ? "Searching..."
+                : selectedProduct?.name || ""
+            }
+            readOnly
+            className="h-7 min-w-0 border bg-white px-1 text-xs font-bold"
+          />
+
+          <NumberDisplay
+            value={
+              selectedProduct
+                ? Number(
+                    selectedProduct.mrp
+                  )
+                : 0
+            }
+          />
+
+          <NumberDisplay
+            value={selectedRate}
+            highlight
+          />
+
+          <input
+            ref={quantityInputRef}
+            value={quantity}
+            onChange={(event) =>
+              setQuantity(event.target.value)
+            }
+            onKeyDown={handleQuantityKeyDown}
+            disabled={saving}
+            type="number"
+            min="0"
+            step={
+              selectedProduct?.allowDecimal
+                ? "0.001"
+                : "1"
+            }
+            className="h-7 border px-1 text-right text-sm font-black outline-none focus:border-2 focus:border-red-700 disabled:bg-stone-100"
+          />
+
+          <NumberDisplay
+            value={selectedAmount}
+          />
+        </div>
+      </section>
+
+      <section className="min-h-0 flex-1 overflow-auto bg-stone-500">
+        <table className="w-full table-fixed border-collapse bg-white text-xs">
+          <thead className="sticky top-0 z-10 bg-stone-100">
+            <tr className="border-b border-stone-500">
+              <TableHeader width="80px">
+                Code
+              </TableHeader>
+
+              <TableHeader>
+                பொருள் பெயர்
+              </TableHeader>
+
+              <TableHeader
+                width="90px"
+                right
+              >
+                Price
+              </TableHeader>
+
+              <TableHeader
+                width="75px"
+                right
+              >
+                Qty
+              </TableHeader>
+
+              <TableHeader
+                width="85px"
+                right
+              >
+                MRP
+              </TableHeader>
+
+              <TableHeader>
+                Product Name
+              </TableHeader>
+
+              <TableHeader
+                width="110px"
+                right
+              >
+                Amount
+              </TableHeader>
+
+              <TableHeader width="55px">
+                Del
+              </TableHeader>
+            </tr>
+          </thead>
+
+          <tbody>
+            {items.map((item) => (
+              <tr
+                key={item.lineId}
+                className="border-b bg-white hover:bg-yellow-50"
+              >
+                <TableCell>
+                  {item.productCode}
+                </TableCell>
+
+                <TableCell>
+                  <span
+                    lang="ta"
+                    className="font-bold"
+                  >
+                    {item.productNameTamil}
+                  </span>
+                </TableCell>
+
+                <TableCell right>
+                  {item.rate.toFixed(2)}
+                </TableCell>
+
+                <TableCell right>
+                  {formatQuantity(
+                    item.quantity
+                  )}
+                </TableCell>
+
+                <TableCell right>
+                  {item.mrp.toFixed(2)}
+                </TableCell>
+
+                <TableCell>
+                  <strong>
+                    {item.productName}
+                  </strong>
+                </TableCell>
+
+                <TableCell right>
+                  <strong>
+                    {item.amount.toFixed(2)}
+                  </strong>
+                </TableCell>
+
+                <TableCell>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      removeItem(item.lineId)
+                    }
+                    disabled={saving}
+                    className="font-black text-red-700 disabled:opacity-50"
+                  >
+                    Del
+                  </button>
+                </TableCell>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {items.length === 0 && (
+          <div className="grid h-full min-h-[180px] place-items-center bg-stone-500 font-black text-stone-200">
+            BILL ITEMS
+          </div>
+        )}
+      </section>
+
+      <footer className="shrink-0 border-t border-stone-500 bg-white">
+        <div className="grid grid-cols-6">
+          <TotalCell
+            label="Items"
+            value={formatQuantity(
+              totals.itemCount
+            )}
+          />
+
+          <TotalCell
+            label="Subtotal"
+            value={totals.subtotal.toFixed(2)}
+          />
+
+          <TotalCell
+            label="GST"
+            value={totals.gstTotal.toFixed(2)}
+          />
+
+          <TotalCell
+            label="Previous Bal"
+            value={previousBalance.toFixed(2)}
+          />
+
+          <TotalCell
+            label="Received"
+            value={
+              Number.isFinite(received)
+                ? received.toFixed(2)
+                : "0.00"
+            }
+          />
+
+          <TotalCell
+            label="Closing Bal"
+            value={closingBalance.toFixed(2)}
+            strong
+          />
+        </div>
+
+        <div className="flex h-7 items-center justify-between border-t px-2 text-[11px] font-black">
+          <span className="text-red-700">
+            CTRL+N-New | CTRL+S-Save |
+            F1-Product | ↑↓-Select |
+            ENTER-Confirm | ESC-Close |
+            F5-Price Mode | F6-Customer
+          </span>
+
+          <span className="text-blue-800">
+            CURRENT PRICE: {priceMode}
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function TopButton({
+  children,
+  onClick,
+  disabled = false,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="h-8 min-w-16 border border-pink-200 bg-pink-100 px-3 text-sm font-black hover:bg-pink-200 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {children}
+    </button>
+  );
+}
+
+function BlueLabel({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="text-xs font-bold text-blue-800">
+      {children}
+    </label>
+  );
+}
+
+function CompactInput({
+  value,
+  onChange,
+  readOnly = false,
+}: {
+  value: string;
+  onChange?: (value: string) => void;
+  readOnly?: boolean;
+}) {
+  return (
+    <input
+      value={value}
+      onChange={(event) =>
+        onChange?.(event.target.value)
+      }
+      readOnly={readOnly}
+      className={`h-6 min-w-0 border px-1 text-xs ${
+        readOnly
+          ? "bg-stone-100"
+          : "bg-white"
+      }`}
+    />
+  );
+}
+
+function MoneyDisplay({
+  value,
+  strong = false,
+}: {
+  value: number;
+  strong?: boolean;
+}) {
+  return (
+    <input
+      value={value.toFixed(2)}
+      readOnly
+      className={`h-6 w-full border bg-stone-100 px-1 text-right text-xs ${
+        strong
+          ? "font-black text-red-700"
+          : "font-bold"
+      }`}
+    />
+  );
+}
+
+function ColumnLabel({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="text-[11px] font-black text-blue-800">
+      {children}
+    </div>
+  );
+}
+
+function NumberDisplay({
+  value,
+  highlight = false,
+}: {
+  value: number;
+  highlight?: boolean;
+}) {
+  return (
+    <input
+      value={
+        Number.isFinite(value)
+          ? value.toFixed(2)
+          : "0.00"
+      }
+      readOnly
+      className={`h-7 border px-1 text-right text-sm font-black ${
+        highlight
+          ? "bg-yellow-50"
+          : "bg-stone-50"
+      }`}
+    />
+  );
+}
+
+function TableHeader({
+  children,
+  width,
+  right = false,
+}: {
+  children: React.ReactNode;
+  width?: string;
+  right?: boolean;
+}) {
+  return (
+    <th
+      style={
+        width
+          ? {
+              width,
+            }
+          : undefined
+      }
+      className={`border-r border-stone-400 px-1.5 py-1 font-black ${
+        right
+          ? "text-right"
+          : "text-left"
+      }`}
+    >
+      {children}
+    </th>
+  );
+}
+
+function TableCell({
+  children,
+  right = false,
+}: {
+  children: React.ReactNode;
+  right?: boolean;
+}) {
+  return (
+    <td
+      className={`border-r border-stone-300 px-1.5 py-1 ${
+        right
+          ? "text-right"
+          : "text-left"
+      }`}
+    >
+      {children}
+    </td>
+  );
+}
+
+function TotalCell({
+  label,
+  value,
+  strong = false,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
+  return (
+    <div className="border-r border-stone-400 px-1.5 py-0.5">
+      <div className="text-[11px] font-black text-blue-800">
+        {label}
+      </div>
+
+      <div
+        className={`text-right ${
+          strong
+            ? "text-xl font-black text-red-700"
+            : "text-sm font-black"
+        }`}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function formatQuantity(value: number) {
+  if (Number.isInteger(value)) {
+    return String(value);
+  }
+
+  return value
+    .toFixed(3)
+    .replace(/0+$/, "")
+    .replace(/\.$/, "");
+}
+
+========== BILLING PAGE END ==========
+
+========== SALES API START ==========
+import { NextResponse } from "next/server";
+
+import { prisma } from "@/lib/prisma";
+
+type PriceMode =
+  | "RETAIL"
+  | "CARD"
+  | "WHOLESALE";
+
+type SaleItemInput = {
+  productId?: string;
+  productCode?: string | null;
+  barcode?: string | null;
+  quantity?: number;
+};
+
+type CreateSaleInput = {
+  billNumber?: string;
+  customerId?: string | null;
+  priceMode?: PriceMode;
+  receivedAmount?: number;
+  items?: SaleItemInput[];
+};
+
+function money(value: number) {
+  return Number(value.toFixed(2));
+}
+
+function normalizedQuantity(value: number) {
+  return Number(value.toFixed(3));
+}
+
+function isPriceMode(
+  value: unknown
+): value is PriceMode {
+  return (
+    value === "RETAIL" ||
+    value === "CARD" ||
+    value === "WHOLESALE"
+  );
+}
+
+function getProductRate(
+  product: {
+    retailPrice: unknown;
+    cardPrice: unknown;
+    wholesalePrice: unknown;
+  },
+  priceMode: PriceMode
+) {
+  if (priceMode === "CARD") {
+    return Number(
+      product.cardPrice ??
+        product.retailPrice
+    );
+  }
+
+  if (priceMode === "WHOLESALE") {
+    return Number(
+      product.wholesalePrice ??
+        product.retailPrice
+    );
+  }
+
+  return Number(product.retailPrice);
+}
+
+function getPaymentType(
+  customerId: string | null,
+  receivedAmount: number,
+  total: number
+) {
+  if (!customerId) {
+    return "CASH" as const;
+  }
+
+  if (receivedAmount <= 0) {
+    return "CREDIT" as const;
+  }
+
+  if (receivedAmount < total) {
+    return "MIXED" as const;
+  }
+
+  return "CASH" as const;
+}
+
+export async function POST(
+  request: Request
+) {
+  try {
+    const body =
+      (await request.json()) as CreateSaleInput;
+
+    const billNumber =
+      body.billNumber?.trim() || "";
+
+    const customerId =
+      body.customerId?.trim() || null;
+
+    const priceMode = isPriceMode(
+      body.priceMode
+    )
+      ? body.priceMode
+      : "RETAIL";
+
+    const receivedAmount = money(
+      Math.max(
+        Number(body.receivedAmount) || 0,
+        0
+      )
+    );
+
+    const inputItems = Array.isArray(
+      body.items
+    )
+      ? body.items
+      : [];
+
+    if (!billNumber) {
+      return NextResponse.json(
+        {
+          error: "Bill number is required",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (inputItems.length === 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Add at least one product before saving",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const invalidItem = inputItems.find(
+      (item) =>
+        !item.productId ||
+        !item.productId.trim()
+    );
+
+    if (invalidItem) {
+      return NextResponse.json(
+        {
+          error:
+            "One or more bill items do not have a valid product",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const duplicateBill =
+      await prisma.sale.findUnique({
+        where: {
+          billNumber,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+    if (duplicateBill) {
+      return NextResponse.json(
+        {
+          error: `Bill ${billNumber} already exists`,
+        },
+        {
+          status: 409,
+        }
+      );
+    }
+
+    /*
+     * Repeated products are allowed as separate
+     * bill lines.
+     *
+     * Example:
+     *
+     * SUGAR Qty 1
+     * SUGAR Qty 1
+     *
+     * We fetch the product only once from the DB,
+     * but preserve both SaleItem rows.
+     */
+    const uniqueProductIds = Array.from(
+      new Set(
+        inputItems.map(
+          (item) =>
+            item.productId!.trim()
+        )
+      )
+    );
+
+    const products =
+      await prisma.product.findMany({
+        where: {
+          id: {
+            in: uniqueProductIds,
+          },
+        },
+      });
+
+    if (
+      products.length !==
+      uniqueProductIds.length
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "One or more products no longer exist",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const productMap = new Map(
+      products.map((product) => [
+        product.id,
+        product,
+      ])
+    );
+
+    const customer = customerId
+      ? await prisma.customer.findUnique({
+          where: {
+            id: customerId,
+          },
+        })
+      : null;
+
+    if (customerId && !customer) {
+      return NextResponse.json(
+        {
+          error:
+            "Selected customer no longer exists",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+     * Prepare every bill line separately.
+     * Repeated product IDs remain repeated.
+     */
+    const preparedItems = inputItems.map(
+      (item, index) => {
+        const productId =
+          item.productId!.trim();
+
+        const product =
+          productMap.get(productId);
+
+        if (!product) {
+          throw new Error(
+            `Bill line ${
+              index + 1
+            }: product not found`
+          );
+        }
+
+        const itemQuantity =
+          normalizedQuantity(
+            Number(item.quantity) || 0
+          );
+
+        if (itemQuantity <= 0) {
+          throw new Error(
+            `${product.name}: quantity must be greater than zero`
+          );
+        }
+
+        if (
+          !product.allowDecimal &&
+          !Number.isInteger(itemQuantity)
+        ) {
+          throw new Error(
+            `${product.name}: decimal quantity is not allowed`
+          );
+        }
+
+        const rate = money(
+          getProductRate(
+            product,
+            priceMode
+          )
+        );
+
+        const mrp = money(
+          Number(product.mrp)
+        );
+
+        const gstRate = money(
+          Number(product.gstRate)
+        );
+
+        const amount = money(
+          rate * itemQuantity
+        );
+
+        const gstAmount =
+          gstRate > 0
+            ? money(
+                amount -
+                  amount /
+                    (1 + gstRate / 100)
+              )
+            : 0;
+
+        return {
+          product,
+          productId,
+          quantity: itemQuantity,
+          mrp,
+          rate,
+          gstRate,
+          gstAmount,
+          amount,
+        };
+      }
+    );
+
+    /*
+     * Aggregate repeated bill lines only for
+     * stock validation and stock deduction.
+     */
+    const stockQuantities = new Map<
+      string,
+      number
+    >();
+
+    for (const item of preparedItems) {
+      const currentQuantity =
+        stockQuantities.get(
+          item.productId
+        ) ?? 0;
+
+      stockQuantities.set(
+        item.productId,
+        normalizedQuantity(
+          currentQuantity + item.quantity
+        )
+      );
+    }
+
+    for (const [
+      productId,
+      totalQuantity,
+    ] of stockQuantities) {
+      const product =
+        productMap.get(productId);
+
+      if (!product) {
+        throw new Error(
+          "Product not found during stock validation"
+        );
+      }
+
+      const currentStock = Number(
+        product.stock
+      );
+
+      if (
+        currentStock <
+        totalQuantity
+      ) {
+        throw new Error(
+          `${product.name}: insufficient stock. Required ${totalQuantity}, available ${currentStock}`
+        );
+      }
+    }
+
+    const itemCount = normalizedQuantity(
+      preparedItems.reduce(
+        (sum, item) =>
+          sum + item.quantity,
+        0
+      )
+    );
+
+    const subtotal = money(
+      preparedItems.reduce(
+        (sum, item) =>
+          sum + item.amount,
+        0
+      )
+    );
+
+    const gstTotal = money(
+      preparedItems.reduce(
+        (sum, item) =>
+          sum + item.gstAmount,
+        0
+      )
+    );
+
+    const discount = 0;
+    const roundOff = 0;
+
+    const total = money(
+      subtotal - discount + roundOff
+    );
+
+    const previousBalance = money(
+      customer
+        ? Number(customer.balance)
+        : 0
+    );
+
+    const effectiveReceivedAmount =
+      customer
+        ? receivedAmount
+        : total;
+
+    const closingBalance = customer
+      ? money(
+          previousBalance +
+            total -
+            effectiveReceivedAmount
+        )
+      : 0;
+
+    const paymentType = getPaymentType(
+      customerId,
+      effectiveReceivedAmount,
+      total
+    );
+
+    const cashAmount =
+      paymentType === "CASH" ||
+      paymentType === "MIXED"
+        ? money(
+            Math.min(
+              effectiveReceivedAmount,
+              total
+            )
+          )
+        : 0;
+
+    const creditAmount = customer
+      ? money(
+          Math.max(
+            total -
+              effectiveReceivedAmount,
+            0
+          )
+        )
+      : 0;
+
+    const savedSale =
+      await prisma.$transaction(
+        async (tx) => {
+          const sale = await tx.sale.create({
+            data: {
+              billNumber,
+              billDate: new Date(),
+
+              customerId:
+                customer?.id ?? null,
+
+              customerCode:
+                customer?.customerCode ??
+                null,
+
+              customerName:
+                customer?.name ?? "CASH",
+
+              previousBalance,
+
+              receivedAmount:
+                effectiveReceivedAmount,
+
+              closingBalance,
+
+              priceMode,
+
+              itemCount,
+
+              subtotal,
+              gstTotal,
+              discount,
+              roundOff,
+              total,
+
+              paymentType,
+
+              cashAmount,
+
+              cardAmount:
+                priceMode === "CARD"
+                  ? cashAmount
+                  : 0,
+
+              creditAmount,
+
+              otherAmount: 0,
+
+              status: "COMPLETED",
+
+              /*
+               * Every prepared item becomes its own
+               * SaleItem row.
+               *
+               * Repeated products remain separate.
+               */
+              items: {
+                create: preparedItems.map(
+                  (item) => ({
+                    productId:
+                      item.product.id,
+
+                    productCode:
+                      item.product
+                        .productCode,
+
+                    barcode:
+                      item.product.barcode,
+
+                    productName:
+                      item.product.name,
+
+                    productNameTamil:
+                      item.product.nameTamil,
+
+                    counter:
+                      item.product.counter,
+
+                    quantity:
+                      item.quantity,
+
+                    mrp: item.mrp,
+
+                    rate: item.rate,
+
+                    gstRate:
+                      item.gstRate,
+
+                    gstAmount:
+                      item.gstAmount,
+
+                    discountPercent: 0,
+
+                    discountAmount: 0,
+
+                    amount: item.amount,
+                  })
+                ),
+              },
+            },
+
+            include: {
+              items: true,
+            },
+          });
+
+          /*
+           * Deduct stock once per product using the
+           * combined quantity of repeated bill lines.
+           */
+          for (const [
+            productId,
+            totalQuantity,
+          ] of stockQuantities) {
+            const product =
+              productMap.get(productId);
+
+            if (!product) {
+              throw new Error(
+                "Product not found during stock update"
+              );
+            }
+
+            const stockUpdate =
+              await tx.product.updateMany({
+                where: {
+                  id: productId,
+
+                  stock: {
+                    gte: totalQuantity,
+                  },
+                },
+
+                data: {
+                  stock: {
+                    decrement:
+                      totalQuantity,
+                  },
+                },
+              });
+
+            if (stockUpdate.count !== 1) {
+              throw new Error(
+                `${product.name}: stock changed while saving. Please retry the bill.`
+              );
+            }
+          }
+
+          if (customer) {
+            await tx.customer.update({
+              where: {
+                id: customer.id,
+              },
+
+              data: {
+                balance: closingBalance,
+
+                lastVisitDate:
+                  new Date(),
+              },
+            });
+          }
+
+          return sale;
+        }
+      );
+
+    return NextResponse.json(
+      {
+        success: true,
+
+        sale: {
+          id: savedSale.id,
+
+          billNumber:
+            savedSale.billNumber,
+
+          total:
+            Number(savedSale.total),
+
+          previousBalance:
+            Number(
+              savedSale.previousBalance
+            ),
+
+          receivedAmount:
+            Number(
+              savedSale.receivedAmount
+            ),
+
+          closingBalance:
+            Number(
+              savedSale.closingBalance
+            ),
+
+          itemCount:
+            Number(savedSale.itemCount),
+
+          lineCount:
+            savedSale.items.length,
+        },
+      },
+      {
+        status: 201,
+      }
+    );
+  } catch (error) {
+    console.error(
+      "SAVE BILL ERROR:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to save bill",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+========== SALES API END ==========
