@@ -607,10 +607,27 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const ProductScalarFieldEnum = {
   id: 'id',
+  productCode: 'productCode',
+  barcode: 'barcode',
   name: 'name',
+  nameTamil: 'nameTamil',
   category: 'category',
-  price: 'price',
+  unit: 'unit',
+  purchasePrice: 'purchasePrice',
+  mrp: 'mrp',
+  wholesalePrice: 'wholesalePrice',
+  retailPrice: 'retailPrice',
+  cardPrice: 'cardPrice',
+  wholesaleProfitPercent: 'wholesaleProfitPercent',
+  retailProfitPercent: 'retailProfitPercent',
+  cardProfitPercent: 'cardProfitPercent',
+  gstRate: 'gstRate',
+  hsnCode: 'hsnCode',
   stock: 'stock',
+  allowDecimal: 'allowDecimal',
+  supplierName: 'supplierName',
+  counter: 'counter',
+  discountPercent: 'discountPercent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -632,6 +649,14 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -693,6 +718,13 @@ export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'Decimal[]'
  */
 export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 

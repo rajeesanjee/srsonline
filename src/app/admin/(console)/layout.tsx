@@ -1,5 +1,11 @@
-import AdminShell from "@/components/admin/AdminShell";
-
-export default function AdminConsoleLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <AdminShell>{children}</AdminShell>;
+export default function AdminConsoleLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <main className="w-full min-w-0 overflow-x-hidden p-3">
+      {children}
+    </main>
+  );
 }

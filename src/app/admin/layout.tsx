@@ -24,19 +24,19 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 lg:flex">
-      <div className="hidden lg:block">
+    <div className="flex min-h-screen w-full bg-gray-50">
+      <aside className="hidden w-64 shrink-0 lg:block">
         <AdminSidebar />
-      </div>
+      </aside>
 
-      <div className="flex-1">
-        <header className="flex items-center justify-between border-b bg-white px-6 py-4">
+      <div className="min-w-0 flex-1">
+        <header className="flex h-16 items-center justify-between border-b bg-white px-5">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-lg font-bold text-gray-900">
               Admin Dashboard
             </h1>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-xs text-gray-500">
               Rajalakshmi Stores Management System
             </p>
           </div>
@@ -44,7 +44,9 @@ export default async function AdminLayout({
           <LogoutButton />
         </header>
 
-        {children}
+        <div className="w-full min-w-0">
+          {children}
+        </div>
       </div>
     </div>
   );

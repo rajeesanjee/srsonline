@@ -14,7 +14,9 @@ export async function POST(request: Request) {
         : "";
 
     const password =
-      typeof body.password === "string" ? body.password : "";
+      typeof body.password === "string"
+        ? body.password
+        : "";
 
     if (!email || !password) {
       return NextResponse.json(
@@ -22,12 +24,16 @@ export async function POST(request: Request) {
           success: false,
           message: "Email and password are required.",
         },
-        { status: 400 }
+        {
+          status: 400,
+        }
       );
     }
 
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: {
+        email,
+      },
     });
 
     if (!user || user.role !== "ADMIN") {
@@ -36,11 +42,16 @@ export async function POST(request: Request) {
           success: false,
           message: "Invalid admin credentials.",
         },
-        { status: 401 }
+        {
+          status: 401,
+        }
       );
     }
 
-    const passwordMatches = await compare(password, user.password);
+    const passwordMatches = await compare(
+      password,
+      user.password
+    );
 
     if (!passwordMatches) {
       return NextResponse.json(
@@ -48,7 +59,9 @@ export async function POST(request: Request) {
           success: false,
           message: "Invalid admin credentials.",
         },
-        { status: 401 }
+        {
+          status: 401,
+        }
       );
     }
 
@@ -68,7 +81,6 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;
@@ -78,9 +90,12 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: false,
-        message: "Something went wrong. Please try again.",
+        message:
+          "Something went wrong. Please try again.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

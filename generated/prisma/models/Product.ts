@@ -27,41 +27,112 @@ export type AggregateProduct = {
 }
 
 export type ProductAvgAggregateOutputType = {
-  price: runtime.Decimal | null
-  stock: number | null
+  purchasePrice: runtime.Decimal | null
+  mrp: runtime.Decimal | null
+  wholesalePrice: runtime.Decimal | null
+  retailPrice: runtime.Decimal | null
+  cardPrice: runtime.Decimal | null
+  wholesaleProfitPercent: runtime.Decimal | null
+  retailProfitPercent: runtime.Decimal | null
+  cardProfitPercent: runtime.Decimal | null
+  gstRate: runtime.Decimal | null
+  stock: runtime.Decimal | null
+  counter: number | null
+  discountPercent: runtime.Decimal | null
 }
 
 export type ProductSumAggregateOutputType = {
-  price: runtime.Decimal | null
-  stock: number | null
+  purchasePrice: runtime.Decimal | null
+  mrp: runtime.Decimal | null
+  wholesalePrice: runtime.Decimal | null
+  retailPrice: runtime.Decimal | null
+  cardPrice: runtime.Decimal | null
+  wholesaleProfitPercent: runtime.Decimal | null
+  retailProfitPercent: runtime.Decimal | null
+  cardProfitPercent: runtime.Decimal | null
+  gstRate: runtime.Decimal | null
+  stock: runtime.Decimal | null
+  counter: number | null
+  discountPercent: runtime.Decimal | null
 }
 
 export type ProductMinAggregateOutputType = {
   id: string | null
+  productCode: string | null
+  barcode: string | null
   name: string | null
+  nameTamil: string | null
   category: string | null
-  price: runtime.Decimal | null
-  stock: number | null
+  unit: string | null
+  purchasePrice: runtime.Decimal | null
+  mrp: runtime.Decimal | null
+  wholesalePrice: runtime.Decimal | null
+  retailPrice: runtime.Decimal | null
+  cardPrice: runtime.Decimal | null
+  wholesaleProfitPercent: runtime.Decimal | null
+  retailProfitPercent: runtime.Decimal | null
+  cardProfitPercent: runtime.Decimal | null
+  gstRate: runtime.Decimal | null
+  hsnCode: string | null
+  stock: runtime.Decimal | null
+  allowDecimal: boolean | null
+  supplierName: string | null
+  counter: number | null
+  discountPercent: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type ProductMaxAggregateOutputType = {
   id: string | null
+  productCode: string | null
+  barcode: string | null
   name: string | null
+  nameTamil: string | null
   category: string | null
-  price: runtime.Decimal | null
-  stock: number | null
+  unit: string | null
+  purchasePrice: runtime.Decimal | null
+  mrp: runtime.Decimal | null
+  wholesalePrice: runtime.Decimal | null
+  retailPrice: runtime.Decimal | null
+  cardPrice: runtime.Decimal | null
+  wholesaleProfitPercent: runtime.Decimal | null
+  retailProfitPercent: runtime.Decimal | null
+  cardProfitPercent: runtime.Decimal | null
+  gstRate: runtime.Decimal | null
+  hsnCode: string | null
+  stock: runtime.Decimal | null
+  allowDecimal: boolean | null
+  supplierName: string | null
+  counter: number | null
+  discountPercent: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type ProductCountAggregateOutputType = {
   id: number
+  productCode: number
+  barcode: number
   name: number
+  nameTamil: number
   category: number
-  price: number
+  unit: number
+  purchasePrice: number
+  mrp: number
+  wholesalePrice: number
+  retailPrice: number
+  cardPrice: number
+  wholesaleProfitPercent: number
+  retailProfitPercent: number
+  cardProfitPercent: number
+  gstRate: number
+  hsnCode: number
   stock: number
+  allowDecimal: number
+  supplierName: number
+  counter: number
+  discountPercent: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -69,41 +140,112 @@ export type ProductCountAggregateOutputType = {
 
 
 export type ProductAvgAggregateInputType = {
-  price?: true
+  purchasePrice?: true
+  mrp?: true
+  wholesalePrice?: true
+  retailPrice?: true
+  cardPrice?: true
+  wholesaleProfitPercent?: true
+  retailProfitPercent?: true
+  cardProfitPercent?: true
+  gstRate?: true
   stock?: true
+  counter?: true
+  discountPercent?: true
 }
 
 export type ProductSumAggregateInputType = {
-  price?: true
+  purchasePrice?: true
+  mrp?: true
+  wholesalePrice?: true
+  retailPrice?: true
+  cardPrice?: true
+  wholesaleProfitPercent?: true
+  retailProfitPercent?: true
+  cardProfitPercent?: true
+  gstRate?: true
   stock?: true
+  counter?: true
+  discountPercent?: true
 }
 
 export type ProductMinAggregateInputType = {
   id?: true
+  productCode?: true
+  barcode?: true
   name?: true
+  nameTamil?: true
   category?: true
-  price?: true
+  unit?: true
+  purchasePrice?: true
+  mrp?: true
+  wholesalePrice?: true
+  retailPrice?: true
+  cardPrice?: true
+  wholesaleProfitPercent?: true
+  retailProfitPercent?: true
+  cardProfitPercent?: true
+  gstRate?: true
+  hsnCode?: true
   stock?: true
+  allowDecimal?: true
+  supplierName?: true
+  counter?: true
+  discountPercent?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type ProductMaxAggregateInputType = {
   id?: true
+  productCode?: true
+  barcode?: true
   name?: true
+  nameTamil?: true
   category?: true
-  price?: true
+  unit?: true
+  purchasePrice?: true
+  mrp?: true
+  wholesalePrice?: true
+  retailPrice?: true
+  cardPrice?: true
+  wholesaleProfitPercent?: true
+  retailProfitPercent?: true
+  cardProfitPercent?: true
+  gstRate?: true
+  hsnCode?: true
   stock?: true
+  allowDecimal?: true
+  supplierName?: true
+  counter?: true
+  discountPercent?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type ProductCountAggregateInputType = {
   id?: true
+  productCode?: true
+  barcode?: true
   name?: true
+  nameTamil?: true
   category?: true
-  price?: true
+  unit?: true
+  purchasePrice?: true
+  mrp?: true
+  wholesalePrice?: true
+  retailPrice?: true
+  cardPrice?: true
+  wholesaleProfitPercent?: true
+  retailProfitPercent?: true
+  cardProfitPercent?: true
+  gstRate?: true
+  hsnCode?: true
   stock?: true
+  allowDecimal?: true
+  supplierName?: true
+  counter?: true
+  discountPercent?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -197,10 +339,27 @@ export type ProductGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type ProductGroupByOutputType = {
   id: string
+  productCode: string | null
+  barcode: string | null
   name: string
+  nameTamil: string | null
   category: string
-  price: runtime.Decimal
-  stock: number
+  unit: string
+  purchasePrice: runtime.Decimal
+  mrp: runtime.Decimal
+  wholesalePrice: runtime.Decimal | null
+  retailPrice: runtime.Decimal
+  cardPrice: runtime.Decimal | null
+  wholesaleProfitPercent: runtime.Decimal | null
+  retailProfitPercent: runtime.Decimal | null
+  cardProfitPercent: runtime.Decimal | null
+  gstRate: runtime.Decimal
+  hsnCode: string | null
+  stock: runtime.Decimal
+  allowDecimal: boolean
+  supplierName: string | null
+  counter: number
+  discountPercent: runtime.Decimal | null
   createdAt: Date
   updatedAt: Date
   _count: ProductCountAggregateOutputType | null
@@ -230,43 +389,111 @@ export type ProductWhereInput = {
   OR?: Prisma.ProductWhereInput[]
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   id?: Prisma.StringFilter<"Product"> | string
+  productCode?: Prisma.StringNullableFilter<"Product"> | string | null
+  barcode?: Prisma.StringNullableFilter<"Product"> | string | null
   name?: Prisma.StringFilter<"Product"> | string
+  nameTamil?: Prisma.StringNullableFilter<"Product"> | string | null
   category?: Prisma.StringFilter<"Product"> | string
-  price?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: Prisma.IntFilter<"Product"> | number
+  unit?: Prisma.StringFilter<"Product"> | string
+  purchasePrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: Prisma.StringNullableFilter<"Product"> | string | null
+  stock?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: Prisma.BoolFilter<"Product"> | boolean
+  supplierName?: Prisma.StringNullableFilter<"Product"> | string | null
+  counter?: Prisma.IntFilter<"Product"> | number
+  discountPercent?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
 }
 
 export type ProductOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  productCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  barcode?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameTamil?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrder
-  price?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
+  purchasePrice?: Prisma.SortOrder
+  mrp?: Prisma.SortOrder
+  wholesalePrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  retailPrice?: Prisma.SortOrder
+  cardPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  wholesaleProfitPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  retailProfitPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardProfitPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
+  hsnCode?: Prisma.SortOrderInput | Prisma.SortOrder
   stock?: Prisma.SortOrder
+  allowDecimal?: Prisma.SortOrder
+  supplierName?: Prisma.SortOrderInput | Prisma.SortOrder
+  counter?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ProductWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  productCode?: string
+  barcode?: string
   AND?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   OR?: Prisma.ProductWhereInput[]
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   name?: Prisma.StringFilter<"Product"> | string
+  nameTamil?: Prisma.StringNullableFilter<"Product"> | string | null
   category?: Prisma.StringFilter<"Product"> | string
-  price?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: Prisma.IntFilter<"Product"> | number
+  unit?: Prisma.StringFilter<"Product"> | string
+  purchasePrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: Prisma.StringNullableFilter<"Product"> | string | null
+  stock?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: Prisma.BoolFilter<"Product"> | boolean
+  supplierName?: Prisma.StringNullableFilter<"Product"> | string | null
+  counter?: Prisma.IntFilter<"Product"> | number
+  discountPercent?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
-}, "id">
+}, "id" | "productCode" | "barcode">
 
 export type ProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  productCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  barcode?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameTamil?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrder
-  price?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
+  purchasePrice?: Prisma.SortOrder
+  mrp?: Prisma.SortOrder
+  wholesalePrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  retailPrice?: Prisma.SortOrder
+  cardPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  wholesaleProfitPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  retailProfitPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardProfitPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
+  hsnCode?: Prisma.SortOrderInput | Prisma.SortOrder
   stock?: Prisma.SortOrder
+  allowDecimal?: Prisma.SortOrder
+  supplierName?: Prisma.SortOrderInput | Prisma.SortOrder
+  counter?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductCountOrderByAggregateInput
@@ -281,122 +508,333 @@ export type ProductScalarWhereWithAggregatesInput = {
   OR?: Prisma.ProductScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ProductScalarWhereWithAggregatesInput | Prisma.ProductScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  productCode?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
+  barcode?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  nameTamil?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   category?: Prisma.StringWithAggregatesFilter<"Product"> | string
-  price?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: Prisma.IntWithAggregatesFilter<"Product"> | number
+  unit?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  purchasePrice?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
+  stock?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
+  supplierName?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
+  counter?: Prisma.IntWithAggregatesFilter<"Product"> | number
+  discountPercent?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
 }
 
 export type ProductCreateInput = {
   id?: string
+  productCode?: string | null
+  barcode?: string | null
   name: string
+  nameTamil?: string | null
   category: string
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: number
+  unit?: string
+  purchasePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: string | null
+  stock?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: boolean
+  supplierName?: string | null
+  counter?: number
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductUncheckedCreateInput = {
   id?: string
+  productCode?: string | null
+  barcode?: string | null
   name: string
+  nameTamil?: string | null
   category: string
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: number
+  unit?: string
+  purchasePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: string | null
+  stock?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: boolean
+  supplierName?: string | null
+  counter?: number
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameTamil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  purchasePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supplierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counter?: Prisma.IntFieldUpdateOperationsInput | number
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameTamil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  purchasePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supplierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counter?: Prisma.IntFieldUpdateOperationsInput | number
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductCreateManyInput = {
   id?: string
+  productCode?: string | null
+  barcode?: string | null
   name: string
+  nameTamil?: string | null
   category: string
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: number
+  unit?: string
+  purchasePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: string | null
+  stock?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: boolean
+  supplierName?: string | null
+  counter?: number
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameTamil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  purchasePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supplierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counter?: Prisma.IntFieldUpdateOperationsInput | number
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barcode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  nameTamil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  stock?: Prisma.IntFieldUpdateOperationsInput | number
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  purchasePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  mrp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  wholesalePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cardPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wholesaleProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  retailProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cardProfitPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allowDecimal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supplierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  counter?: Prisma.IntFieldUpdateOperationsInput | number
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  productCode?: Prisma.SortOrder
+  barcode?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameTamil?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  price?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
+  purchasePrice?: Prisma.SortOrder
+  mrp?: Prisma.SortOrder
+  wholesalePrice?: Prisma.SortOrder
+  retailPrice?: Prisma.SortOrder
+  cardPrice?: Prisma.SortOrder
+  wholesaleProfitPercent?: Prisma.SortOrder
+  retailProfitPercent?: Prisma.SortOrder
+  cardProfitPercent?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
+  hsnCode?: Prisma.SortOrder
   stock?: Prisma.SortOrder
+  allowDecimal?: Prisma.SortOrder
+  supplierName?: Prisma.SortOrder
+  counter?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ProductAvgOrderByAggregateInput = {
-  price?: Prisma.SortOrder
+  purchasePrice?: Prisma.SortOrder
+  mrp?: Prisma.SortOrder
+  wholesalePrice?: Prisma.SortOrder
+  retailPrice?: Prisma.SortOrder
+  cardPrice?: Prisma.SortOrder
+  wholesaleProfitPercent?: Prisma.SortOrder
+  retailProfitPercent?: Prisma.SortOrder
+  cardProfitPercent?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
   stock?: Prisma.SortOrder
+  counter?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrder
 }
 
 export type ProductMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  productCode?: Prisma.SortOrder
+  barcode?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameTamil?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  price?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
+  purchasePrice?: Prisma.SortOrder
+  mrp?: Prisma.SortOrder
+  wholesalePrice?: Prisma.SortOrder
+  retailPrice?: Prisma.SortOrder
+  cardPrice?: Prisma.SortOrder
+  wholesaleProfitPercent?: Prisma.SortOrder
+  retailProfitPercent?: Prisma.SortOrder
+  cardProfitPercent?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
+  hsnCode?: Prisma.SortOrder
   stock?: Prisma.SortOrder
+  allowDecimal?: Prisma.SortOrder
+  supplierName?: Prisma.SortOrder
+  counter?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ProductMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  productCode?: Prisma.SortOrder
+  barcode?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  nameTamil?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  price?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
+  purchasePrice?: Prisma.SortOrder
+  mrp?: Prisma.SortOrder
+  wholesalePrice?: Prisma.SortOrder
+  retailPrice?: Prisma.SortOrder
+  cardPrice?: Prisma.SortOrder
+  wholesaleProfitPercent?: Prisma.SortOrder
+  retailProfitPercent?: Prisma.SortOrder
+  cardProfitPercent?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
+  hsnCode?: Prisma.SortOrder
   stock?: Prisma.SortOrder
+  allowDecimal?: Prisma.SortOrder
+  supplierName?: Prisma.SortOrder
+  counter?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ProductSumOrderByAggregateInput = {
-  price?: Prisma.SortOrder
+  purchasePrice?: Prisma.SortOrder
+  mrp?: Prisma.SortOrder
+  wholesalePrice?: Prisma.SortOrder
+  retailPrice?: Prisma.SortOrder
+  cardPrice?: Prisma.SortOrder
+  wholesaleProfitPercent?: Prisma.SortOrder
+  retailProfitPercent?: Prisma.SortOrder
+  cardProfitPercent?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
   stock?: Prisma.SortOrder
+  counter?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrder
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type DecimalFieldUpdateOperationsInput = {
@@ -405,6 +843,18 @@ export type DecimalFieldUpdateOperationsInput = {
   decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
   multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -419,55 +869,140 @@ export type IntFieldUpdateOperationsInput = {
 
 export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  productCode?: boolean
+  barcode?: boolean
   name?: boolean
+  nameTamil?: boolean
   category?: boolean
-  price?: boolean
+  unit?: boolean
+  purchasePrice?: boolean
+  mrp?: boolean
+  wholesalePrice?: boolean
+  retailPrice?: boolean
+  cardPrice?: boolean
+  wholesaleProfitPercent?: boolean
+  retailProfitPercent?: boolean
+  cardProfitPercent?: boolean
+  gstRate?: boolean
+  hsnCode?: boolean
   stock?: boolean
+  allowDecimal?: boolean
+  supplierName?: boolean
+  counter?: boolean
+  discountPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["product"]>
 
 export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  productCode?: boolean
+  barcode?: boolean
   name?: boolean
+  nameTamil?: boolean
   category?: boolean
-  price?: boolean
+  unit?: boolean
+  purchasePrice?: boolean
+  mrp?: boolean
+  wholesalePrice?: boolean
+  retailPrice?: boolean
+  cardPrice?: boolean
+  wholesaleProfitPercent?: boolean
+  retailProfitPercent?: boolean
+  cardProfitPercent?: boolean
+  gstRate?: boolean
+  hsnCode?: boolean
   stock?: boolean
+  allowDecimal?: boolean
+  supplierName?: boolean
+  counter?: boolean
+  discountPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["product"]>
 
 export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  productCode?: boolean
+  barcode?: boolean
   name?: boolean
+  nameTamil?: boolean
   category?: boolean
-  price?: boolean
+  unit?: boolean
+  purchasePrice?: boolean
+  mrp?: boolean
+  wholesalePrice?: boolean
+  retailPrice?: boolean
+  cardPrice?: boolean
+  wholesaleProfitPercent?: boolean
+  retailProfitPercent?: boolean
+  cardProfitPercent?: boolean
+  gstRate?: boolean
+  hsnCode?: boolean
   stock?: boolean
+  allowDecimal?: boolean
+  supplierName?: boolean
+  counter?: boolean
+  discountPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["product"]>
 
 export type ProductSelectScalar = {
   id?: boolean
+  productCode?: boolean
+  barcode?: boolean
   name?: boolean
+  nameTamil?: boolean
   category?: boolean
-  price?: boolean
+  unit?: boolean
+  purchasePrice?: boolean
+  mrp?: boolean
+  wholesalePrice?: boolean
+  retailPrice?: boolean
+  cardPrice?: boolean
+  wholesaleProfitPercent?: boolean
+  retailProfitPercent?: boolean
+  cardProfitPercent?: boolean
+  gstRate?: boolean
+  hsnCode?: boolean
   stock?: boolean
+  allowDecimal?: boolean
+  supplierName?: boolean
+  counter?: boolean
+  discountPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "category" | "price" | "stock" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productCode" | "barcode" | "name" | "nameTamil" | "category" | "unit" | "purchasePrice" | "mrp" | "wholesalePrice" | "retailPrice" | "cardPrice" | "wholesaleProfitPercent" | "retailProfitPercent" | "cardProfitPercent" | "gstRate" | "hsnCode" | "stock" | "allowDecimal" | "supplierName" | "counter" | "discountPercent" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 
 export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Product"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    productCode: string | null
+    barcode: string | null
     name: string
+    nameTamil: string | null
     category: string
-    price: runtime.Decimal
-    stock: number
+    unit: string
+    purchasePrice: runtime.Decimal
+    mrp: runtime.Decimal
+    wholesalePrice: runtime.Decimal | null
+    retailPrice: runtime.Decimal
+    cardPrice: runtime.Decimal | null
+    wholesaleProfitPercent: runtime.Decimal | null
+    retailProfitPercent: runtime.Decimal | null
+    cardProfitPercent: runtime.Decimal | null
+    gstRate: runtime.Decimal
+    hsnCode: string | null
+    stock: runtime.Decimal
+    allowDecimal: boolean
+    supplierName: string | null
+    counter: number
+    discountPercent: runtime.Decimal | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["product"]>
@@ -894,10 +1429,27 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface ProductFieldRefs {
   readonly id: Prisma.FieldRef<"Product", 'String'>
+  readonly productCode: Prisma.FieldRef<"Product", 'String'>
+  readonly barcode: Prisma.FieldRef<"Product", 'String'>
   readonly name: Prisma.FieldRef<"Product", 'String'>
+  readonly nameTamil: Prisma.FieldRef<"Product", 'String'>
   readonly category: Prisma.FieldRef<"Product", 'String'>
-  readonly price: Prisma.FieldRef<"Product", 'Decimal'>
-  readonly stock: Prisma.FieldRef<"Product", 'Int'>
+  readonly unit: Prisma.FieldRef<"Product", 'String'>
+  readonly purchasePrice: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly mrp: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly wholesalePrice: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly retailPrice: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly cardPrice: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly wholesaleProfitPercent: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly retailProfitPercent: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly cardProfitPercent: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly gstRate: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly hsnCode: Prisma.FieldRef<"Product", 'String'>
+  readonly stock: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly allowDecimal: Prisma.FieldRef<"Product", 'Boolean'>
+  readonly supplierName: Prisma.FieldRef<"Product", 'String'>
+  readonly counter: Prisma.FieldRef<"Product", 'Int'>
+  readonly discountPercent: Prisma.FieldRef<"Product", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"Product", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Product", 'DateTime'>
 }
