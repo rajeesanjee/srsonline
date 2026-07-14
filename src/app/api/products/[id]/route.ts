@@ -1,5 +1,35 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params;
+
+    const product = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { error: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(product);
+  } catch (error) {
+    console.error("GET PRODUCT ERROR:", error);
+
+    return NextResponse.json(
+      { error: "Failed to fetch product" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(
   request: Request,
   context: { params: Promise<{ id: string }> }
@@ -35,9 +65,7 @@ export async function PUT(
     }
 
     const product = await prisma.product.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         name,
         category,
@@ -65,13 +93,10 @@ export async function DELETE(
     const { id } = await context.params;
 
     await prisma.product.delete({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
     return NextResponse.json({
-      success: true,
       message: "Product deleted successfully",
     });
   } catch (error) {
