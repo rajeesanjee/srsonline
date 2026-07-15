@@ -1,3 +1,4 @@
+========== CURRENT BILLING PAGE ==========
 "use client";
 
 import React, {
@@ -8,15 +9,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-
-import {
-  checkSrsPrintAgent,
-  sendRawReceiptToSrsAgent,
-} from "@/lib/srs-print-agent";
-
-import {
-  buildSrsReceipt,
-} from "@/lib/srs-receipt";
 
 type PriceMode = "WHOLESALE" | "RETAIL" | "CARD";
 type PaymentMode = "CASH" | "CARD" | "GPAY" | "CREDIT" | "MIXED";
@@ -206,11 +198,6 @@ export default function BillingPage() {
 
   const [billingStage, setBillingStage] =
     useState<BillingStage>("PRODUCTS");
-
-  const [
-    paymentConfirmed,
-    setPaymentConfirmed,
-  ] = useState(false);
 
   const [paymentMode, setPaymentMode] =
     useState<PaymentMode>("CASH");
@@ -506,7 +493,6 @@ export default function BillingPage() {
 
       setPriceMode("WHOLESALE");
       setBillingStage("PRODUCTS");
-      setPaymentConfirmed(false);
       setPaymentMode("CASH");
       setActivePaymentIndex(0);
       setCashAmount("0");
@@ -1006,7 +992,6 @@ export default function BillingPage() {
     setError("");
     setSuccessMessage("");
     setBillingStage("PAYMENT");
-    setPaymentConfirmed(false);
     setPaymentMode("CASH");
     setActivePaymentIndex(0);
     setCashAmount(totals.total.toFixed(2));
@@ -1017,7 +1002,6 @@ export default function BillingPage() {
 
   const closePaymentStage = useCallback(() => {
     setBillingStage("PRODUCTS");
-    setPaymentConfirmed(false);
     setError("");
 
     window.setTimeout(() => {
@@ -1038,7 +1022,6 @@ export default function BillingPage() {
       }
 
       setError("");
-      setPaymentConfirmed(false);
       setPaymentMode(mode);
 
       if (mode === "CASH") {
@@ -1086,77 +1069,6 @@ export default function BillingPage() {
     cardAmount,
     gpayAmount,
     creditAmount,
-  ]);
-
-  const confirmPayment = useCallback(() => {
-    const cashValue = Number(cashAmount || 0);
-    const cardValue = Number(cardAmount || 0);
-    const gpayValue = Number(gpayAmount || 0);
-    const creditValue = Number(creditAmount || 0);
-
-    const paymentValues = [
-      cashValue,
-      cardValue,
-      gpayValue,
-      creditValue,
-    ];
-
-    if (
-      paymentValues.some(
-        (value) =>
-          !Number.isFinite(value) || value < 0
-      )
-    ) {
-      setError("Enter valid payment amounts");
-      return false;
-    }
-
-    if (
-      creditValue > 0 &&
-      customerId === null
-    ) {
-      setError(
-        "Select a customer before credit sale"
-      );
-      return false;
-    }
-
-    const enteredPaymentTotal = Number(
-      (
-        cashValue +
-        cardValue +
-        gpayValue +
-        creditValue
-      ).toFixed(2)
-    );
-
-    if (
-      Math.abs(
-        enteredPaymentTotal - totals.total
-      ) > 0.009
-    ) {
-      setError(
-        `Payment total must equal bill total ₹${totals.total.toFixed(
-          2
-        )}. Entered ₹${enteredPaymentTotal.toFixed(
-          2
-        )}.`
-      );
-
-      return false;
-    }
-
-    setError("");
-    setPaymentConfirmed(true);
-
-    return true;
-  }, [
-    cashAmount,
-    cardAmount,
-    creditAmount,
-    customerId,
-    gpayAmount,
-    totals.total,
   ]);
 
   const saveBill = useCallback(async () => {
@@ -1316,69 +1228,8 @@ export default function BillingPage() {
 
       const savedTotal = data.sale.total;
 
-      const receiptBytes = buildSrsReceipt({
-        billNumber: savedBillNumber,
-
-        billDate: new Date().toISOString(),
-
-        customerName,
-
-        itemCount: data.sale.itemCount,
-
-        subtotal: totals.subtotal,
-
-        gstTotal: totals.gstTotal,
-
-        total: savedTotal,
-
-        previousBalance:
-          data.sale.previousBalance,
-
-        closingBalance:
-          data.sale.closingBalance,
-
-        items: items.map((item) => ({
-          code: item.productCode,
-
-          name: item.productName,
-
-          quantity: item.quantity,
-
-          rate: item.rate,
-
-          amount: item.amount,
-        })),
-
-        payment: {
-          type: paymentMode,
-
-          cashAmount: cashValue,
-
-          cardAmount: cardValue,
-
-          gpayAmount: gpayValue,
-
-          creditAmount: creditValue,
-
-          otherAmount: 0,
-        },
-      });
-
-      const printAgent =
-        await checkSrsPrintAgent();
-
-      if (!printAgent.ready) {
-        throw new Error(
-          `Bill ${savedBillNumber} saved, but printing failed: ${printAgent.message}`
-        );
-      }
-
-      await sendRawReceiptToSrsAgent(
-        receiptBytes
-      );
-
       setSuccessMessage(
-        `Bill ${savedBillNumber} saved and printed successfully · ₹${savedTotal.toFixed(
+        `Bill ${savedBillNumber} saved successfully · ₹${savedTotal.toFixed(
           2
         )}`
       );
@@ -1401,7 +1252,6 @@ export default function BillingPage() {
     cardAmount,
     creditAmount,
     customerId,
-    customerName,
     gpayAmount,
     items,
     openPaymentStage,
@@ -1453,8 +1303,7 @@ export default function BillingPage() {
         }
 
         if (event.key === "Enter") {
-          const target =
-            event.target as HTMLElement;
+          const target = event.target as HTMLElement;
 
           if (
             target.tagName === "INPUT" &&
@@ -1464,12 +1313,6 @@ export default function BillingPage() {
           }
 
           event.preventDefault();
-
-          if (!paymentConfirmed) {
-            confirmPayment();
-            return;
-          }
-
           void saveBill();
           return;
         }
@@ -1540,11 +1383,9 @@ export default function BillingPage() {
   }, [
     billingStage,
     choosePaymentMode,
-    confirmPayment,
     closePaymentStage,
     cyclePriceMode,
     openPaymentStage,
-    paymentConfirmed,
     paymentMode,
     resetBill,
     saveBill,
@@ -2189,10 +2030,6 @@ export default function BillingPage() {
                   disabled={paymentMode !== "MIXED"}
                   onEnter={() => {
                     creditAmountInputRef.current?.blur();
-
-                    window.setTimeout(() => {
-                      confirmPayment();
-                    }, 0);
                   }}
                 />
 
@@ -2230,31 +2067,18 @@ export default function BillingPage() {
 
             <div className="flex items-center justify-between border-t bg-stone-100 px-5 py-3 text-xs font-black">
               <span className="text-red-800">
-                {paymentConfirmed
-                  ? "PAYMENT CONFIRMED · PRESS ENTER TO SAVE & PRINT"
-                  : paymentMode === "MIXED"
-                    ? "ENTER AMOUNTS · CONFIRM PAYMENT · ENTER SAVE & PRINT"
-                    : "1-5 SELECT · ENTER CONFIRM · ENTER SAVE & PRINT"}
+                1-5 Select · ↑↓ Move · ENTER Save · ESC Back
               </span>
 
               <button
                 type="button"
                 onClick={() => {
-                  if (!paymentConfirmed) {
-                    confirmPayment();
-                    return;
-                  }
-
                   void saveBill();
                 }}
                 disabled={saving}
                 className="bg-red-900 px-6 py-2 text-white disabled:opacity-50"
               >
-                {saving
-                  ? "SAVING & PRINTING..."
-                  : paymentConfirmed
-                    ? "ENTER · SAVE & PRINT"
-                    : "ENTER · CONFIRM PAYMENT"}
+                {saving ? "SAVING..." : "ENTER · SAVE BILL"}
               </button>
             </div>
           </div>
@@ -2539,4 +2363,1220 @@ function formatQuantity(value: number) {
     .toFixed(3)
     .replace(/0+$/, "")
     .replace(/\.$/, "");
+}
+
+========== CURRENT SALES API ==========
+import { NextResponse } from "next/server";
+
+import { prisma } from "@/lib/prisma";
+
+type PriceMode =
+  | "RETAIL"
+  | "CARD"
+  | "WHOLESALE";
+
+type PaymentMode =
+  | "CASH"
+  | "CARD"
+  | "GPAY"
+  | "CREDIT"
+  | "MIXED";
+
+type SaleItemInput = {
+  productId?: string;
+  productCode?: string | null;
+  barcode?: string | null;
+  quantity?: number;
+};
+
+type CreateSaleInput = {
+  billNumber?: string;
+  customerId?: string | null;
+  priceMode?: PriceMode;
+  paymentMode?: PaymentMode;
+  receivedAmount?: number;
+  cashAmount?: number;
+  cardAmount?: number;
+  gpayAmount?: number;
+  creditAmount?: number;
+  items?: SaleItemInput[];
+};
+
+function money(value: number) {
+  return Number(value.toFixed(2));
+}
+
+function normalizedQuantity(value: number) {
+  return Number(value.toFixed(3));
+}
+
+function isPriceMode(
+  value: unknown
+): value is PriceMode {
+  return (
+    value === "RETAIL" ||
+    value === "CARD" ||
+    value === "WHOLESALE"
+  );
+}
+
+function getProductRate(
+  product: {
+    retailPrice: unknown;
+    cardPrice: unknown;
+    wholesalePrice: unknown;
+  },
+  priceMode: PriceMode
+) {
+  if (priceMode === "CARD") {
+    return Number(
+      product.cardPrice ??
+        product.retailPrice
+    );
+  }
+
+  if (priceMode === "WHOLESALE") {
+    return Number(
+      product.wholesalePrice ??
+        product.retailPrice
+    );
+  }
+
+  return Number(product.retailPrice);
+}
+
+function isPaymentMode(
+  value: unknown
+): value is PaymentMode {
+  return (
+    value === "CASH" ||
+    value === "CARD" ||
+    value === "GPAY" ||
+    value === "CREDIT" ||
+    value === "MIXED"
+  );
+}
+
+export async function POST(
+  request: Request
+) {
+  try {
+    const body =
+      (await request.json()) as CreateSaleInput;
+
+    const billNumber =
+      body.billNumber?.trim() || "";
+
+    const customerId =
+      body.customerId?.trim() || null;
+
+    const priceMode = isPriceMode(
+      body.priceMode
+    )
+      ? body.priceMode
+      : "RETAIL";
+
+    const paymentMode = isPaymentMode(
+      body.paymentMode
+    )
+      ? body.paymentMode
+      : "CASH";
+
+    const cashAmount = money(
+      Math.max(Number(body.cashAmount) || 0, 0)
+    );
+
+    const cardAmount = money(
+      Math.max(Number(body.cardAmount) || 0, 0)
+    );
+
+    const gpayAmount = money(
+      Math.max(Number(body.gpayAmount) || 0, 0)
+    );
+
+    const creditAmount = money(
+      Math.max(Number(body.creditAmount) || 0, 0)
+    );
+
+    const receivedAmount = money(
+      cashAmount + cardAmount + gpayAmount
+    );
+
+    const inputItems = Array.isArray(
+      body.items
+    )
+      ? body.items
+      : [];
+
+    if (!billNumber) {
+      return NextResponse.json(
+        {
+          error: "Bill number is required",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (inputItems.length === 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Add at least one product before saving",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const invalidItem = inputItems.find(
+      (item) =>
+        !item.productId ||
+        !item.productId.trim()
+    );
+
+    if (invalidItem) {
+      return NextResponse.json(
+        {
+          error:
+            "One or more bill items do not have a valid product",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const duplicateBill =
+      await prisma.sale.findUnique({
+        where: {
+          billNumber,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+    if (duplicateBill) {
+      return NextResponse.json(
+        {
+          error: `Bill ${billNumber} already exists`,
+        },
+        {
+          status: 409,
+        }
+      );
+    }
+
+    /*
+     * Repeated products are allowed as separate
+     * bill lines.
+     *
+     * Example:
+     *
+     * SUGAR Qty 1
+     * SUGAR Qty 1
+     *
+     * We fetch the product only once from the DB,
+     * but preserve both SaleItem rows.
+     */
+    const uniqueProductIds = Array.from(
+      new Set(
+        inputItems.map(
+          (item) =>
+            item.productId!.trim()
+        )
+      )
+    );
+
+    const products =
+      await prisma.product.findMany({
+        where: {
+          id: {
+            in: uniqueProductIds,
+          },
+        },
+      });
+
+    if (
+      products.length !==
+      uniqueProductIds.length
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "One or more products no longer exist",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const productMap = new Map(
+      products.map((product) => [
+        product.id,
+        product,
+      ])
+    );
+
+    const customer = customerId
+      ? await prisma.customer.findUnique({
+          where: {
+            id: customerId,
+          },
+        })
+      : null;
+
+    if (customerId && !customer) {
+      return NextResponse.json(
+        {
+          error:
+            "Selected customer no longer exists",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+     * Prepare every bill line separately.
+     * Repeated product IDs remain repeated.
+     */
+    const preparedItems = inputItems.map(
+      (item, index) => {
+        const productId =
+          item.productId!.trim();
+
+        const product =
+          productMap.get(productId);
+
+        if (!product) {
+          throw new Error(
+            `Bill line ${
+              index + 1
+            }: product not found`
+          );
+        }
+
+        const itemQuantity =
+          normalizedQuantity(
+            Number(item.quantity) || 0
+          );
+
+        if (itemQuantity <= 0) {
+          throw new Error(
+            `${product.name}: quantity must be greater than zero`
+          );
+        }
+
+        if (
+          !product.allowDecimal &&
+          !Number.isInteger(itemQuantity)
+        ) {
+          throw new Error(
+            `${product.name}: decimal quantity is not allowed`
+          );
+        }
+
+        const rate = money(
+          getProductRate(
+            product,
+            priceMode
+          )
+        );
+
+        const mrp = money(
+          Number(product.mrp)
+        );
+
+        const gstRate = money(
+          Number(product.gstRate)
+        );
+
+        const amount = money(
+          rate * itemQuantity
+        );
+
+        const gstAmount =
+          gstRate > 0
+            ? money(
+                amount -
+                  amount /
+                    (1 + gstRate / 100)
+              )
+            : 0;
+
+        return {
+          product,
+          productId,
+          quantity: itemQuantity,
+          mrp,
+          rate,
+          gstRate,
+          gstAmount,
+          amount,
+        };
+      }
+    );
+
+    /*
+     * Aggregate repeated bill lines only for
+     * stock validation and stock deduction.
+     */
+    const stockQuantities = new Map<
+      string,
+      number
+    >();
+
+    for (const item of preparedItems) {
+      const currentQuantity =
+        stockQuantities.get(
+          item.productId
+        ) ?? 0;
+
+      stockQuantities.set(
+        item.productId,
+        normalizedQuantity(
+          currentQuantity + item.quantity
+        )
+      );
+    }
+
+    for (const [
+      productId,
+      totalQuantity,
+    ] of stockQuantities) {
+      const product =
+        productMap.get(productId);
+
+      if (!product) {
+        throw new Error(
+          "Product not found during stock validation"
+        );
+      }
+
+      const currentStock = Number(
+        product.stock
+      );
+
+      if (
+        currentStock <
+        totalQuantity
+      ) {
+        throw new Error(
+          `${product.name}: insufficient stock. Required ${totalQuantity}, available ${currentStock}`
+        );
+      }
+    }
+
+    const itemCount = normalizedQuantity(
+      preparedItems.reduce(
+        (sum, item) =>
+          sum + item.quantity,
+        0
+      )
+    );
+
+    const subtotal = money(
+      preparedItems.reduce(
+        (sum, item) =>
+          sum + item.amount,
+        0
+      )
+    );
+
+    const gstTotal = money(
+      preparedItems.reduce(
+        (sum, item) =>
+          sum + item.gstAmount,
+        0
+      )
+    );
+
+    const discount = 0;
+    const roundOff = 0;
+
+    const total = money(
+      subtotal - discount + roundOff
+    );
+
+    const previousBalance = money(
+      customer
+        ? Number(customer.balance)
+        : 0
+    );
+
+    const paymentTotal = money(
+      cashAmount +
+        cardAmount +
+        gpayAmount +
+        creditAmount
+    );
+
+    if (
+      Math.abs(paymentTotal - total) > 0.009
+    ) {
+      return NextResponse.json(
+        {
+          error: `Payment total ₹${paymentTotal.toFixed(
+            2
+          )} must equal bill total ₹${total.toFixed(
+            2
+          )}`,
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (creditAmount > 0 && !customer) {
+      return NextResponse.json(
+        {
+          error:
+            "Select a customer before credit sale",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const closingBalance = customer
+      ? money(
+          previousBalance + creditAmount
+        )
+      : 0;
+
+    const paymentType = paymentMode;
+
+    const effectiveReceivedAmount =
+      receivedAmount;
+
+    const savedSale =
+      await prisma.$transaction(
+        async (tx) => {
+          const sale = await tx.sale.create({
+            data: {
+              billNumber,
+              billDate: new Date(),
+
+              customerId:
+                customer?.id ?? null,
+
+              customerCode:
+                customer?.customerCode ??
+                null,
+
+              customerName:
+                customer?.name ?? "CASH",
+
+              previousBalance,
+
+              receivedAmount:
+                effectiveReceivedAmount,
+
+              closingBalance,
+
+              priceMode,
+
+              itemCount,
+
+              subtotal,
+              gstTotal,
+              discount,
+              roundOff,
+              total,
+
+              paymentType,
+
+              cashAmount,
+
+              cardAmount,
+
+              gpayAmount,
+
+              creditAmount,
+
+              otherAmount: 0,
+
+              status: "COMPLETED",
+
+              /*
+               * Every prepared item becomes its own
+               * SaleItem row.
+               *
+               * Repeated products remain separate.
+               */
+              items: {
+                create: preparedItems.map(
+                  (item) => ({
+                    productId:
+                      item.product.id,
+
+                    productCode:
+                      item.product
+                        .productCode,
+
+                    barcode:
+                      item.product.barcode,
+
+                    productName:
+                      item.product.name,
+
+                    productNameTamil:
+                      item.product.nameTamil,
+
+                    counter:
+                      item.product.counter,
+
+                    quantity:
+                      item.quantity,
+
+                    mrp: item.mrp,
+
+                    rate: item.rate,
+
+                    gstRate:
+                      item.gstRate,
+
+                    gstAmount:
+                      item.gstAmount,
+
+                    discountPercent: 0,
+
+                    discountAmount: 0,
+
+                    amount: item.amount,
+                  })
+                ),
+              },
+            },
+
+            include: {
+              items: true,
+            },
+          });
+
+          /*
+           * Deduct stock once per product using the
+           * combined quantity of repeated bill lines.
+           */
+          for (const [
+            productId,
+            totalQuantity,
+          ] of stockQuantities) {
+            const product =
+              productMap.get(productId);
+
+            if (!product) {
+              throw new Error(
+                "Product not found during stock update"
+              );
+            }
+
+            const stockUpdate =
+              await tx.product.updateMany({
+                where: {
+                  id: productId,
+
+                  stock: {
+                    gte: totalQuantity,
+                  },
+                },
+
+                data: {
+                  stock: {
+                    decrement:
+                      totalQuantity,
+                  },
+                },
+              });
+
+            if (stockUpdate.count !== 1) {
+              throw new Error(
+                `${product.name}: stock changed while saving. Please retry the bill.`
+              );
+            }
+          }
+
+          if (customer) {
+            await tx.customer.update({
+              where: {
+                id: customer.id,
+              },
+
+              data: {
+                balance: closingBalance,
+
+                lastVisitDate:
+                  new Date(),
+              },
+            });
+          }
+
+          return sale;
+        }
+      );
+
+    return NextResponse.json(
+      {
+        success: true,
+
+        sale: {
+          id: savedSale.id,
+
+          billNumber:
+            savedSale.billNumber,
+
+          total:
+            Number(savedSale.total),
+
+          previousBalance:
+            Number(
+              savedSale.previousBalance
+            ),
+
+          receivedAmount:
+            Number(
+              savedSale.receivedAmount
+            ),
+
+          closingBalance:
+            Number(
+              savedSale.closingBalance
+            ),
+
+          itemCount:
+            Number(savedSale.itemCount),
+
+          lineCount:
+            preparedItems.length,
+        },
+      },
+      {
+        status: 201,
+      }
+    );
+  } catch (error) {
+    console.error(
+      "SAVE BILL ERROR:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to save bill",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+========== SRS PRINT AGENT HELPER ==========
+const SRS_PRINT_AGENT_URL =
+  "http://127.0.0.1:8787";
+
+export type SrsPrintAgentStatus = {
+  ready: boolean;
+  printer: string | null;
+  message: string;
+};
+
+export async function checkSrsPrintAgent():
+  Promise<SrsPrintAgentStatus> {
+  try {
+    const response = await fetch(
+      `${SRS_PRINT_AGENT_URL}/health`,
+      {
+        method: "GET",
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      return {
+        ready: false,
+        printer: null,
+        message: `Print Agent returned ${response.status}`,
+      };
+    }
+
+    const result = (
+      await response.text()
+    ).trim();
+
+    const [status, printer] =
+      result.split("|");
+
+    if (status !== "READY") {
+      return {
+        ready: false,
+        printer: printer || null,
+        message: result,
+      };
+    }
+
+    return {
+      ready: true,
+      printer: printer || null,
+      message: result,
+    };
+  } catch {
+    return {
+      ready: false,
+      printer: null,
+      message:
+        "SRS Print Agent is not running.",
+    };
+  }
+}
+
+export async function sendRawReceiptToSrsAgent(
+  receiptBytes: Uint8Array
+): Promise<void> {
+  const binaryParts: string[] = [];
+
+  const chunkSize = 8192;
+
+  for (
+    let offset = 0;
+    offset < receiptBytes.length;
+    offset += chunkSize
+  ) {
+    const chunk = receiptBytes.subarray(
+      offset,
+      offset + chunkSize
+    );
+
+    binaryParts.push(
+      String.fromCharCode(...chunk)
+    );
+  }
+
+  const base64 = btoa(
+    binaryParts.join("")
+  );
+
+  const response = await fetch(
+    `${SRS_PRINT_AGENT_URL}/print`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain",
+      },
+      body: base64,
+    }
+  );
+
+  const result = (
+    await response.text()
+  ).trim();
+
+  if (
+    !response.ok ||
+    result !== "PRINTED"
+  ) {
+    throw new Error(
+      result ||
+        "POS80 direct printing failed."
+    );
+  }
+}
+
+========== SRS RECEIPT BUILDER ==========
+export type SrsReceiptItem = {
+  code: string;
+  name: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+};
+
+export type SrsReceiptPayment = {
+  type: string;
+  cashAmount: number;
+  cardAmount: number;
+  gpayAmount: number;
+  creditAmount: number;
+  otherAmount?: number;
+};
+
+export type SrsReceiptSale = {
+  billNumber: string;
+  billDate: string;
+  customerName: string;
+  itemCount: number;
+  subtotal: number;
+  gstTotal: number;
+  total: number;
+  previousBalance: number;
+  closingBalance: number;
+  items: SrsReceiptItem[];
+  payment: SrsReceiptPayment;
+};
+
+const ESC = 27;
+const GS = 29;
+const LF = 10;
+
+const RECEIPT_COLUMNS = 42;
+
+function money(value: number) {
+  return value.toFixed(2);
+}
+
+function textBytes(value: string) {
+  return Array.from(
+    new TextEncoder().encode(value)
+  );
+}
+
+function safeText(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function truncate(
+  value: string,
+  length: number
+) {
+  if (value.length <= length) {
+    return value;
+  }
+
+  return value.slice(0, length);
+}
+
+function left(
+  value: string,
+  length: number
+) {
+  return truncate(value, length)
+    .padEnd(length, " ");
+}
+
+function right(
+  value: string,
+  length: number
+) {
+  return truncate(value, length)
+    .padStart(length, " ");
+}
+
+function line(
+  label: string,
+  value: string
+) {
+  const valueWidth = 16;
+
+  return (
+    left(
+      label,
+      RECEIPT_COLUMNS - valueWidth
+    ) +
+    right(value, valueWidth)
+  );
+}
+
+function itemAmountLine(
+  quantity: number,
+  rate: number,
+  amount: number
+) {
+  return (
+    right(String(quantity), 12) +
+    right(money(rate), 14) +
+    right(money(amount), 16)
+  );
+}
+
+export function buildSrsReceipt(
+  sale: SrsReceiptSale
+): Uint8Array {
+  const bytes: number[] = [];
+
+  function command(...values: number[]) {
+    bytes.push(...values);
+  }
+
+  function write(value: string) {
+    bytes.push(
+      ...textBytes(value)
+    );
+  }
+
+  function writeLine(
+    value = ""
+  ) {
+    write(value);
+    command(LF);
+  }
+
+  function alignLeft() {
+    command(ESC, 97, 0);
+  }
+
+  function alignCenter() {
+    command(ESC, 97, 1);
+  }
+
+  function bold(enabled: boolean) {
+    command(
+      ESC,
+      69,
+      enabled ? 1 : 0
+    );
+  }
+
+  function normalSize() {
+    command(GS, 33, 0);
+  }
+
+  function doubleSize() {
+    command(GS, 33, 17);
+  }
+
+  const separator =
+    "-".repeat(RECEIPT_COLUMNS);
+
+  command(ESC, 64);
+
+  alignCenter();
+  bold(true);
+  doubleSize();
+
+  writeLine("S. RAJALAKSHMI");
+  writeLine("STORES");
+
+  normalSize();
+
+  writeLine(
+    "WHOLESALE & RETAIL PROVISIONS"
+  );
+
+  bold(false);
+
+  writeLine(
+    "No.39, Saidapet Road, Vadapalani"
+  );
+
+  writeLine(
+    "Chennai - 26"
+  );
+
+  writeLine(
+    "Phone: 9025725928, 8925112312"
+  );
+
+  writeLine(separator);
+
+  alignLeft();
+
+  writeLine(
+    `No: ${safeText(sale.billNumber)}`
+  );
+
+  writeLine(
+    `Date: ${safeText(sale.billDate)}`
+  );
+
+  if (
+    safeText(sale.customerName) &&
+    safeText(sale.customerName)
+      .toUpperCase() !== "CASH"
+  ) {
+    writeLine(
+      `Customer: ${safeText(
+        sale.customerName
+      )}`
+    );
+  }
+
+  writeLine(separator);
+
+  bold(true);
+
+  writeLine(
+    left("Particulars", 20) +
+      right("Qty", 6) +
+      right("Rate", 8) +
+      right("Value", 8)
+  );
+
+  bold(false);
+
+  writeLine(separator);
+
+  for (const item of sale.items) {
+    writeLine(
+      truncate(
+        safeText(item.name),
+        RECEIPT_COLUMNS
+      )
+    );
+
+    writeLine(
+      itemAmountLine(
+        item.quantity,
+        item.rate,
+        item.amount
+      )
+    );
+  }
+
+  writeLine(separator);
+
+  bold(true);
+
+  writeLine(
+    line(
+      `Tot Items : ${sale.itemCount}`,
+      `TOTAL: ${money(sale.total)}`
+    )
+  );
+
+  writeLine(separator);
+
+  doubleSize();
+
+  writeLine(
+    `BILL AMOUNT: ${money(
+      sale.total
+    )}`
+  );
+
+  normalSize();
+
+  writeLine(separator);
+
+  bold(false);
+
+  if (
+    sale.payment.cashAmount > 0
+  ) {
+    writeLine(
+      line(
+        "CASH",
+        money(
+          sale.payment.cashAmount
+        )
+      )
+    );
+  }
+
+  if (
+    sale.payment.cardAmount > 0
+  ) {
+    writeLine(
+      line(
+        "CARD",
+        money(
+          sale.payment.cardAmount
+        )
+      )
+    );
+  }
+
+  if (
+    sale.payment.gpayAmount > 0
+  ) {
+    writeLine(
+      line(
+        "GPAY",
+        money(
+          sale.payment.gpayAmount
+        )
+      )
+    );
+  }
+
+  if (
+    sale.payment.creditAmount > 0
+  ) {
+    writeLine(
+      line(
+        "CREDIT",
+        money(
+          sale.payment.creditAmount
+        )
+      )
+    );
+  }
+
+  if (sale.previousBalance !== 0) {
+    writeLine(
+      line(
+        "PREVIOUS BAL",
+        money(
+          sale.previousBalance
+        )
+      )
+    );
+  }
+
+  if (sale.closingBalance !== 0) {
+    bold(true);
+
+    writeLine(
+      line(
+        "CLOSING BAL",
+        money(
+          sale.closingBalance
+        )
+      )
+    );
+
+    bold(false);
+  }
+
+  writeLine(separator);
+
+  bold(true);
+
+  writeLine(
+    "GPAY NUMBER*7358653901"
+  );
+
+  writeLine(
+    "GPAY NAME*S.RAJALAKSHMI STORES"
+  );
+
+  bold(false);
+
+  writeLine(
+    "Goods once sold cannot be returned"
+  );
+
+  alignCenter();
+  bold(true);
+
+  writeLine(
+    "THANK YOU VISIT AGAIN !!!!!"
+  );
+
+  bold(false);
+
+  alignLeft();
+
+  writeLine("Worker Name :");
+  writeLine("Tray No.    :");
+
+  command(ESC, 100, 4);
+
+  command(GS, 86, 1);
+
+  return new Uint8Array(bytes);
 }

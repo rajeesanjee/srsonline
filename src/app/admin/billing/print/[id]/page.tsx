@@ -19,6 +19,12 @@ export default async function PrintBillPage({
     },
 
     include: {
+      customer: {
+        select: {
+          phone: true,
+        },
+      },
+
       items: {
         orderBy: {
           createdAt: "asc",
@@ -46,6 +52,9 @@ export default async function PrintBillPage({
 
         customerName:
           sale.customerName,
+
+        customerPhone:
+          sale.customer?.phone ?? null,
 
         previousBalance:
           Number(sale.previousBalance),
